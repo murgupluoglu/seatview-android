@@ -4,21 +4,37 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.*
+import android.os.Build
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.*
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import java.util.*
 
 
-class SeatView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet, defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+class SeatView : View {
 
-    init {
+    /*
+    * @JvmOverloads is not working with isInEditMode
+    * */
+    constructor(context: Context) : super(context) {}
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         initAttributes(context, attrs)
     }
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        initAttributes(context, attrs)
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int, defStyleRes: Int) : super(context, attrs, defStyle, defStyleRes) {
+        initAttributes(context, attrs)
+    }
+
+
 
     lateinit var seatViewConfig: SeatViewConfig
     private var bitmaps = HashMap<String, Bitmap>()
