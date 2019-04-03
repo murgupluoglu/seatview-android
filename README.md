@@ -8,8 +8,7 @@ allprojects {
         maven { url 'https://jitpack.io' }
     }
 }
-```
-```gradle
+
 dependencies {
     implementation 'com.murgupluoglu.seatview:seatview:lastVersion'
 }
