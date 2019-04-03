@@ -2,7 +2,13 @@
 
 # Installation
 ```groovy
-implementation 'com.murgupluoglu.seatview:seatview:1.0.0'
+    allprojects {
+        repositories {
+            maven { url 'https://jitpack.io' }
+        }
+    }
+    
+    implementation 'com.murgupluoglu.seatview:seatview:1.0.0'
 ```
 
 # Usage
