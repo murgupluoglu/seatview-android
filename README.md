@@ -13,6 +13,7 @@ allprojects {
 dependencies {
     implementation 'com.murgupluoglu.seatview:seatview:lastVersion'
 }
+```
 
 # Usage
 ```xml
