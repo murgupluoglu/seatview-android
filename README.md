@@ -1,15 +1,18 @@
 ![](github/sample.gif)
 
 # Installation
-```groovy
- allprojects {
-  repositories {
-   maven { url 'https://jitpack.io' }
-  }
- }
-    
-    implementation 'com.murgupluoglu.seatview:seatview:1.0.0'
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
 ```
+```gradle
+dependencies {
+    implementation 'com.murgupluoglu.seatview:seatview:lastVersion'
+}
 
 # Usage
 ```xml
