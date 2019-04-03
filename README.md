@@ -30,22 +30,22 @@
 ```
 
 ```kotlin
-        seatView.initSeatView(seatArray, rowCount, columnCount, rowNames)
+    seatView.initSeatView(seatArray, rowCount, columnCount, rowNames)
 
-        seatView.seatClickListener = object : SeatViewListener {
+    seatView.seatClickListener = object : SeatViewListener {
 
-            override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-                Toast.makeText(this@MainActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
-            }
-
-            override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-                Toast.makeText(this@MainActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
-            }
-
-            override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
-                return clickedSeat.type != Seat.TYPE.UNSELECTABLE
-            }
+        override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
+            Toast.makeText(this@MainActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
         }
+
+        override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
+            Toast.makeText(this@MainActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
+        }
+
+        override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
+            return clickedSeat.type != Seat.TYPE.UNSELECTABLE
+        }
+    }
 ```
 
 # Support
