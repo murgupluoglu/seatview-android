@@ -6,7 +6,7 @@ import com.murgupluoglu.seatview.Seat
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.HashMap
+import java.util.*
 
 /**
  * Created by Mustafa Urgupluoglu on 3.04.2019.

@@ -3,7 +3,6 @@ package com.murgupluoglu.seatview
 import android.content.Context
 import android.graphics.Path
 import android.graphics.RectF
-import android.util.Log
 import java.math.BigDecimal
 
 class SeatViewConfig(val context: Context) {
@@ -277,7 +276,6 @@ class SeatViewConfig(val context: Context) {
             if (seatViewRect.left < windowRect.left + seatNamesBarWidth) {
                 xOffset -= moveX
                 xOffset = xOffset.round(2)
-                Log.e("TAG", xOffset.toString())
             }
         } else {
             if (seatViewRect.right > windowRect.right) {
@@ -337,6 +335,12 @@ class SeatViewConfig(val context: Context) {
 
         xOffset = touchX - (virtualWidth * ratioX).toInt()
         yOffset = touchY - (virtualHeight * ratioY).toInt()
+        if(yOffset > yOffsetDefault){
+            yOffset = yOffsetDefault
+        }
+        if(xOffset > xOffsetDefault){
+            xOffset = xOffsetDefault
+        }
     }
 
     fun isSafeSelect(rowIndex: Int, columnIndex: Int): Boolean {

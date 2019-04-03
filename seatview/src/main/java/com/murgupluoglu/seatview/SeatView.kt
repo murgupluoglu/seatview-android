@@ -84,7 +84,7 @@ class SeatView : View {
                 }
                 invalidate()
             } else {
-                // click blank area
+                // clicked blank area
             }
 
 
