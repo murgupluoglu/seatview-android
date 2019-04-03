@@ -1,5 +1,9 @@
 ![](github/sample.gif)
 
+# Installation
+```groovy
+implementation 'com.murgupluoglu.seatview:seatview:1.0.0'
+```
 
 # Usage
 ```xml
