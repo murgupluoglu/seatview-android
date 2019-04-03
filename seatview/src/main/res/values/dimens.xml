@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="seat_max_height">30dip</dimen>
+    <dimen name="seat_min_height">13dip</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_tiny">10sp</dimen>
+</resources>

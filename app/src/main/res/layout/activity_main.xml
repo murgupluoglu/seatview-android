@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.murgupluoglu.seatview.SeatView xmlns:seatview="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/seatView"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_margin="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        seatview:centerLineActive="true"
+        seatview:centerLineColor="#e600ff"
+        seatview:centerLineWidth="2.8"
+        seatview:cinemaScreenViewActive="true"
+        seatview:cinemaScreenViewBackgroundColor="#F44336"
+        seatview:cinemaScreenViewSide="top"
+        seatview:cinemaScreenViewText="Cinema Screen"
+        seatview:cinemaScreenViewTextColor="#ffffff"
+        seatview:seatNamesBarActive="true"
+        seatview:seatViewBackgroundColor="#F4F4F4"
+        seatview:thumbSeatViewActive="false"
+        seatview:thumbSeatViewBackgroundColor="#bcb295"
+        seatview:thumbSeatViewPointerColor="#ffee00"
+        seatview:thumbSeatViewPointerWidth="5"
+        seatview:zoomActive="true"
+        seatview:zoomAfterClickActive="false" />
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seatView">
+
+        <ImageView
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:src="@drawable/seat_available"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:text="Available"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:src="@drawable/seat_disabledperson"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:text="Disabled"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:src="@drawable/seat_notavailable"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:text="Not Available"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:src="@drawable/seat_selected"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginLeft="2dp"
+            android:text="Selected"
+            android:textColor="@color/black"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/button_test"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Seat" />
+
+            <Switch
+                android:id="@+id/switch_seatnamesbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Show SeatNamesBar" />
+
+            <Switch
+                android:id="@+id/switch_centerLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Show centerLine" />
+
+            <Switch
+                android:id="@+id/switch_cinemaScreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Show cinemaScreen" />
+
+            <Switch
+                android:id="@+id/switch_thumbSeatView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Show thumbSeatView" />
+
+            <Switch
+                android:id="@+id/switch_zoomActive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Allow zoom" />
+
+            <Switch
+                android:id="@+id/switch_zoomAfterClick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Allow zoom after click" />
+
+            <Switch
+                android:id="@+id/switch_cinameScreenSide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Sinema Screen Side top-bottom" />
+
+            <Switch
+                android:id="@+id/switch_seatViewBackgroundColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Seatview background color gray-black" />
+
+            <Switch
+                android:id="@+id/switch_cinemaScreenText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Change Cinema Screen Text" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
