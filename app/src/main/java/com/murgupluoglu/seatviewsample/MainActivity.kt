@@ -137,7 +137,7 @@ class MainActivity : AppCompatActivity() {
 
         val reverseSeats = true
 
-        for (index in 0..(rowArray.length() - 1)) {
+        for (index in 0 until rowArray.length()) {
 
             val oneRow = rowArray.getJSONObject(index)
 
@@ -148,9 +148,9 @@ class MainActivity : AppCompatActivity() {
             if (reverseSeats) {
                 rowIndex = (rowCount - 1) - rowIndex
             }
-            rowNames.put(rowIndex.toString(), rowName)
+            rowNames[rowIndex.toString()] = rowName
 
-            for (columnIndex in 0..(seats.length() - 1)) {
+            for (columnIndex in 0 until seats.length()) {
                 val seatObject = seats.getJSONObject(columnIndex)
 
                 var rowIndexObject = seatObject.getInt("rowIndex")
@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity() {
 
                 if (seatObject.has("multiple")) { //check multiple seats exist
                     val multipleSeatsArray = seatObject.getJSONArray("multiple")
-                    for (multipleSeatsIndex in 0..(multipleSeatsArray.length() - 1)) {
+                    for (multipleSeatsIndex in 0 until multipleSeatsArray.length()) {
                         val oneSeatIdMultiple = multipleSeatsArray.getString(multipleSeatsIndex)
 
                         if(oneSeatIdMultiple == seat.seatName){

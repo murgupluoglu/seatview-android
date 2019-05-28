@@ -162,11 +162,11 @@ class SeatViewConfig(context: Context,
     private fun initThumbSize() {
         THUMB_WIDTH = windowWidth * 0.35f
 
-        val seatColumnCount = columnCount.toFloat() + SeatViewConfig.seatInlineGapWidthRatio * (columnCount - 1) + 2f //padding = seatwidth
+        val seatColumnCount = columnCount.toFloat() + seatInlineGapWidthRatio * (columnCount - 1) + 2f //padding = seatwidth
         THUMB_SEAT_WIDTH = THUMB_WIDTH / seatColumnCount
-        THUMB_SEAT_HEIGHT = THUMB_SEAT_WIDTH / SeatViewConfig.seatWidthHeightRatio
-        THUMB_GAP_INLINE = THUMB_SEAT_WIDTH * SeatViewConfig.seatInlineGapWidthRatio
-        THUMB_GAP_NEWLINE = THUMB_SEAT_WIDTH * SeatViewConfig.seatNewlineGapWidthRatio
+        THUMB_SEAT_HEIGHT = THUMB_SEAT_WIDTH / seatWidthHeightRatio
+        THUMB_GAP_INLINE = THUMB_SEAT_WIDTH * seatInlineGapWidthRatio
+        THUMB_GAP_NEWLINE = THUMB_SEAT_WIDTH * seatNewlineGapWidthRatio
         THUMB_PADDING = THUMB_SEAT_WIDTH
 
         THUMB_HEIGHT = THUMB_SEAT_HEIGHT * rowCount + THUMB_GAP_NEWLINE * (rowCount - 1) + THUMB_PADDING * 2
