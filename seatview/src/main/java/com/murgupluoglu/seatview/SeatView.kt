@@ -36,7 +36,7 @@ class SeatView : View {
 
 
 
-    lateinit var seatViewConfig: SeatViewConfig
+    val config: SeatViewConfig = SeatViewConfig(context)
     private var bitmaps = HashMap<String, Bitmap>()
 
 
@@ -59,7 +59,7 @@ class SeatView : View {
 
     private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-            seatViewConfig.moveSeatView(distanceX, distanceY)
+            config.moveSeatView(distanceX, distanceY)
             invalidate()
             return true
         }
@@ -69,7 +69,7 @@ class SeatView : View {
         }
 
         override fun onSingleTapUp(event: MotionEvent): Boolean {
-            val clickedSeat = seatViewConfig.getClickedSeat(event.x, event.y)
+            val clickedSeat = config.getClickedSeat(event.x, event.y)
             if (clickedSeat != null) {
                 if (clickedSeat.type != Seat.TYPE.NOT_EXIST) {
                     if (selectedSeats[clickedSeat.id] != null) {
@@ -84,23 +84,23 @@ class SeatView : View {
                 }
                 invalidate()
             } else {
-                // click blank area
+                // clicked blank area
             }
 
 
-            if (SeatViewConfig.zoomActive && SeatViewConfig.zoomAfterClickActive
-                    && seatViewConfig.seatWidth < seatViewConfig.seatMaxWidth) {
+            if (config.zoomActive && config.zoomAfterClickActive
+                    && config.seatWidth < config.seatMaxWidth) {
                 val x = event.x
                 val y = event.y
 
                 postDelayed(object : Runnable {
                     override fun run() {
-                        var newSeatWidth = seatViewConfig.seatWidth + 8
-                        newSeatWidth = Math.min(newSeatWidth, seatViewConfig.seatMaxWidth)
+                        var newSeatWidth = config.seatWidth + 8
+                        newSeatWidth = Math.min(newSeatWidth, config.seatMaxWidth)
 
-                        seatViewConfig.setSeatWidth(newSeatWidth, x, y)
+                        config.setSeatWidth(newSeatWidth, x, y)
                         invalidate()
-                        if (newSeatWidth >= seatViewConfig.seatMaxWidth) return
+                        if (newSeatWidth >= config.seatMaxWidth) return
                         postDelayed(this, 10)
                     }
                 }, 20)
@@ -116,22 +116,22 @@ class SeatView : View {
 
         val a = context.obtainStyledAttributes(attrs, R.styleable.SeatView, 0, 0)
         //Kotlin 'when' doesn't work inside isInEditMode
-        if (a.hasValue(R.styleable.SeatView_zoomAfterClickActive)) SeatViewConfig.zoomAfterClickActive = a.getBoolean(R.styleable.SeatView_zoomAfterClickActive, SeatViewConfig.zoomAfterClickActive)
-        if (a.hasValue(R.styleable.SeatView_seatViewBackgroundColor)) SeatViewConfig.seatViewBackgroundColor = a.getString(R.styleable.SeatView_seatViewBackgroundColor)
-        if (a.hasValue(R.styleable.SeatView_seatNamesBarActive)) SeatViewConfig.seatNamesBarActive = a.getBoolean(R.styleable.SeatView_seatNamesBarActive, SeatViewConfig.seatNamesBarActive)
-        if (a.hasValue(R.styleable.SeatView_thumbSeatViewActive)) SeatViewConfig.thumbSeatViewActive = a.getBoolean(R.styleable.SeatView_thumbSeatViewActive, SeatViewConfig.thumbSeatViewActive)
-        if (a.hasValue(R.styleable.SeatView_centerLineActive)) SeatViewConfig.centerLineActive = a.getBoolean(R.styleable.SeatView_centerLineActive, SeatViewConfig.centerLineActive)
-        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewActive)) SeatViewConfig.cinemaScreenViewActive = a.getBoolean(R.styleable.SeatView_cinemaScreenViewActive, SeatViewConfig.cinemaScreenViewActive)
-        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewSide)) SeatViewConfig.cinemaScreenViewSide = a.getInt(R.styleable.SeatView_cinemaScreenViewSide, SeatViewConfig.cinemaScreenViewSide)
-        if (a.hasValue(R.styleable.SeatView_zoomActive)) SeatViewConfig.zoomActive = a.getBoolean(R.styleable.SeatView_zoomActive, SeatViewConfig.zoomActive)
-        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewText)) SeatViewConfig.cinemaScreenViewText = a.getString(R.styleable.SeatView_cinemaScreenViewText)
-        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewBackgroundColor)) SeatViewConfig.cinemaScreenViewBackgroundColor = a.getString(R.styleable.SeatView_cinemaScreenViewBackgroundColor)
-        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewTextColor)) SeatViewConfig.cinemaScreenViewTextColor = a.getString(R.styleable.SeatView_cinemaScreenViewTextColor)
-        if (a.hasValue(R.styleable.SeatView_centerLineWidth)) SeatViewConfig.centerLineWidth = a.getFloat(R.styleable.SeatView_centerLineWidth, SeatViewConfig.centerLineWidth)
-        if (a.hasValue(R.styleable.SeatView_centerLineColor)) SeatViewConfig.centerLineColor = a.getString(R.styleable.SeatView_centerLineColor)
-        if (a.hasValue(R.styleable.SeatView_thumbSeatViewBackgroundColor)) SeatViewConfig.thumbSeatViewBackgroundColor = a.getString(R.styleable.SeatView_thumbSeatViewBackgroundColor)
-        if (a.hasValue(R.styleable.SeatView_thumbSeatViewPointerColor)) SeatViewConfig.thumbSeatViewPointerColor = a.getString(R.styleable.SeatView_thumbSeatViewPointerColor)
-        if (a.hasValue(R.styleable.SeatView_thumbSeatViewPointerWidth)) SeatViewConfig.thumbSeatViewPointerWidth = a.getFloat(R.styleable.SeatView_thumbSeatViewPointerWidth, SeatViewConfig.thumbSeatViewPointerWidth)
+        if (a.hasValue(R.styleable.SeatView_zoomAfterClickActive)) config.zoomAfterClickActive = a.getBoolean(R.styleable.SeatView_zoomAfterClickActive, config.zoomAfterClickActive)
+        if (a.hasValue(R.styleable.SeatView_seatViewBackgroundColor)) config.seatViewBackgroundColor = a.getString(R.styleable.SeatView_seatViewBackgroundColor)!!
+        if (a.hasValue(R.styleable.SeatView_seatNamesBarActive)) config.seatNamesBarActive = a.getBoolean(R.styleable.SeatView_seatNamesBarActive, config.seatNamesBarActive)
+        if (a.hasValue(R.styleable.SeatView_thumbSeatViewActive)) config.thumbSeatViewActive = a.getBoolean(R.styleable.SeatView_thumbSeatViewActive, config.thumbSeatViewActive)
+        if (a.hasValue(R.styleable.SeatView_centerLineActive)) config.centerLineActive = a.getBoolean(R.styleable.SeatView_centerLineActive, config.centerLineActive)
+        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewActive)) config.cinemaScreenViewActive = a.getBoolean(R.styleable.SeatView_cinemaScreenViewActive, config.cinemaScreenViewActive)
+        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewSide)) config.cinemaScreenViewSide = a.getInt(R.styleable.SeatView_cinemaScreenViewSide, config.cinemaScreenViewSide)
+        if (a.hasValue(R.styleable.SeatView_zoomActive)) config.zoomActive = a.getBoolean(R.styleable.SeatView_zoomActive, config.zoomActive)
+        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewText)) config.cinemaScreenViewText = a.getString(R.styleable.SeatView_cinemaScreenViewText)!!
+        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewBackgroundColor)) config.cinemaScreenViewBackgroundColor = a.getString(R.styleable.SeatView_cinemaScreenViewBackgroundColor)!!
+        if (a.hasValue(R.styleable.SeatView_cinemaScreenViewTextColor)) config.cinemaScreenViewTextColor = a.getString(R.styleable.SeatView_cinemaScreenViewTextColor)!!
+        if (a.hasValue(R.styleable.SeatView_centerLineWidth)) config.centerLineWidth = a.getFloat(R.styleable.SeatView_centerLineWidth, config.centerLineWidth)
+        if (a.hasValue(R.styleable.SeatView_centerLineColor)) config.centerLineColor = a.getString(R.styleable.SeatView_centerLineColor)!!
+        if (a.hasValue(R.styleable.SeatView_thumbSeatViewBackgroundColor)) config.thumbSeatViewBackgroundColor = a.getString(R.styleable.SeatView_thumbSeatViewBackgroundColor)!!
+        if (a.hasValue(R.styleable.SeatView_thumbSeatViewPointerColor)) config.thumbSeatViewPointerColor = a.getString(R.styleable.SeatView_thumbSeatViewPointerColor)!!
+        if (a.hasValue(R.styleable.SeatView_thumbSeatViewPointerWidth)) config.thumbSeatViewPointerWidth = a.getFloat(R.styleable.SeatView_thumbSeatViewPointerWidth, config.thumbSeatViewPointerWidth)
 
         a.recycle()
 
@@ -169,7 +169,14 @@ class SeatView : View {
                 }
             }
 
-            seatViewConfig = SeatViewConfig(getContext(), widthPixels, heightPixels, seatArray, rowCount, columnCount, rowNames)
+            config.windowWidth = widthPixels.toFloat()
+            config.windowHeight = heightPixels.toFloat()
+            config.seatArray = seatArray
+            config.rowCount = rowCount
+            config.columnCount = columnCount
+            config.rowNames = rowNames
+            config.calculateParameters()
+
             initPaint()
         }
     }
@@ -212,10 +219,15 @@ class SeatView : View {
             }
         }
 
-        val vto = viewTreeObserver
-        vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                seatViewConfig = SeatViewConfig(context, measuredWidth, measuredHeight, seatArray, rowcount, columncount, rownames)
+                config.windowWidth = measuredWidth.toFloat()
+                config.windowHeight = measuredHeight.toFloat()
+                config.seatArray = seatArray
+                config.rowCount = rowcount
+                config.columnCount = columncount
+                config.rowNames = rownames
+                config.calculateParameters()
                 initPaint()
                 viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
@@ -226,71 +238,71 @@ class SeatView : View {
 
     private fun initPaint() {
         commonPaint.isAntiAlias = true
-        cinemaScreenPaint.color = Color.parseColor(SeatViewConfig.cinemaScreenViewBackgroundColor)
+        cinemaScreenPaint.color = Color.parseColor(config.cinemaScreenViewBackgroundColor)
         cinemaScreenPaint.style = Paint.Style.FILL
         cinemaScreenPaint.isAntiAlias = true
         val cornerPathEffect = CornerPathEffect(12f)
         cinemaScreenPaint.pathEffect = cornerPathEffect
 
-        seatNamesBarPaint.color = Color.parseColor(SeatViewConfig.seatNamesBarBackgroundColor)
-        seatNamesBarPaint.alpha = SeatViewConfig.seatNamesBarBackgroundAlpha
+        seatNamesBarPaint.color = Color.parseColor(config.seatNamesBarBackgroundColor)
+        seatNamesBarPaint.alpha = config.seatNamesBarBackgroundAlpha
         seatNamesBarPaint.style = Paint.Style.FILL
         seatNamesBarPaint.isAntiAlias = true
 
         rowNumPaint.color = Color.WHITE
         rowNumPaint.textAlign = Paint.Align.CENTER
         rowNumPaint.isAntiAlias = true
-        rowNumPaint.textSize = seatViewConfig.seatNamesBarTextSize
+        rowNumPaint.textSize = config.seatNamesBarTextSize
 
 
-        cinemaScreenTextPaint.color = Color.parseColor(SeatViewConfig.cinemaScreenViewTextColor)
+        cinemaScreenTextPaint.color = Color.parseColor(config.cinemaScreenViewTextColor)
         cinemaScreenTextPaint.textAlign = Paint.Align.CENTER
         cinemaScreenTextPaint.isAntiAlias = true
-        cinemaScreenTextPaint.textSize = seatViewConfig.centerTextSize
+        cinemaScreenTextPaint.textSize = config.centerTextSize
 
 
         centerLinePaint.style = Paint.Style.STROKE
-        centerLinePaint.strokeWidth = SeatViewConfig.centerLineWidth
+        centerLinePaint.strokeWidth = config.centerLineWidth
         val effects = DashPathEffect(floatArrayOf(5f, 5f, 5f, 5f), 1f)
         centerLinePaint.pathEffect = effects
         centerLinePaint.isAntiAlias = true
-        centerLinePaint.color = Color.parseColor(SeatViewConfig.centerLineColor)
+        centerLinePaint.color = Color.parseColor(config.centerLineColor)
     }
 
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawColor(Color.parseColor(SeatViewConfig.seatViewBackgroundColor))
+        canvas.drawColor(Color.parseColor(config.seatViewBackgroundColor))
         drawSeat(canvas)
 
-        if (SeatViewConfig.seatNamesBarActive) {
+        if (config.seatNamesBarActive) {
             drawSeatNamesView(canvas)
         }
 
-        if (SeatViewConfig.cinemaScreenViewActive) {
+        if (config.cinemaScreenViewActive) {
             drawCinemaScreen(canvas)
         }
 
-        if (SeatViewConfig.centerLineActive) {
+        if (config.centerLineActive) {
             drawCenterLine(canvas)
         }
 
-        if (SeatViewConfig.thumbSeatViewActive) {
+        if (config.thumbSeatViewActive) {
             drawThumbSeatView(canvas)
         }
     }
 
 
     private fun drawSeat(canvas: Canvas) {
-        for (rowIndex in 0 until seatViewConfig.rowCount) {
-            for (columnIndex in 0 until seatViewConfig.columnCount) {
-                val seatBean = seatViewConfig.seatArray[rowIndex][columnIndex]
+        for (rowIndex in 0 until config.rowCount) {
+            for (columnIndex in 0 until config.columnCount) {
+                val seatBean = config.seatArray[rowIndex][columnIndex]
 
-                val seatRectF = seatViewConfig.getSeatRect(rowIndex, columnIndex, seatBean)
+                val seatRectF = config.getSeatRect(rowIndex, columnIndex, seatBean)
 
-                if (seatRectF.right < seatViewConfig.windowRectF.left || seatRectF.left > seatViewConfig.windowRectF.right || seatRectF.top > seatViewConfig
-                                .windowRectF.bottom || seatRectF.bottom < seatViewConfig.windowRectF.top) {
+                if (seatRectF.right < config.windowRectF.left || seatRectF.left > config.windowRectF.right
+                        || seatRectF.top > config.windowRectF.bottom || seatRectF.bottom < config.windowRectF.top) {
                     continue
                 }
 
@@ -305,14 +317,14 @@ class SeatView : View {
                         resourceColor = seatBean.drawableColor
                     }
 
-                    var calculatedSeatWidth = seatViewConfig.seatWidth
+                    var calculatedSeatWidth = config.seatWidth
                     if (seatBean.multipleType == Seat.MULTIPLETYPE.LEFT || seatBean.multipleType == Seat.MULTIPLETYPE.RIGHT) {
-                        calculatedSeatWidth = seatViewConfig.seatWidth + seatViewConfig.seatInlineGap / 2
+                        calculatedSeatWidth = config.seatWidth + config.seatInlineGap / 2
                     } else if (seatBean.multipleType == Seat.MULTIPLETYPE.CENTER) {
-                        calculatedSeatWidth = seatViewConfig.seatWidth + seatViewConfig.seatInlineGap
+                        calculatedSeatWidth = config.seatWidth + config.seatInlineGap
                     }
                     val seatTypeId = seatBean.type.toString() + "_" + seatBean.multipleType + "_" + seatBean.drawableColor + "_" + seatBean.isSelected
-                    val drawBitmap = drawableToBitmap(seatTypeId, calculatedSeatWidth, seatViewConfig.seatHeight, resourceName, resourceColor)
+                    val drawBitmap = drawableToBitmap(seatTypeId, calculatedSeatWidth, config.seatHeight, resourceName, resourceColor)
 
 
                     if (drawBitmap != null) canvas.drawBitmap(drawBitmap, null, seatRectF, commonPaint)
@@ -349,35 +361,35 @@ class SeatView : View {
 
     private fun drawSeatNamesView(canvas: Canvas) {
         //draw background
-        canvas.drawRoundRect(seatViewConfig.seatNamesBarRect, seatViewConfig.seatNamesBarWidth / 2, seatViewConfig.seatNamesBarWidth / 2, seatNamesBarPaint)
+        canvas.drawRoundRect(config.seatNamesBarRect, config.seatNamesBarWidth / 2, config.seatNamesBarWidth / 2, seatNamesBarPaint)
 
         //draw numbers
-        for (rowIndex in 0 until seatViewConfig.rowCount) {
-            val rowNumRect = seatViewConfig.getRowNumRect(rowIndex)
-            val rowNum = seatViewConfig.rowNames.get(rowIndex.toString())
+        for (rowIndex in 0 until config.rowCount) {
+            val rowNumRect = config.getRowNumRect(rowIndex)
+            val rowNum = config.rowNames.get(rowIndex.toString())
             if (!TextUtils.isEmpty(rowNum))
                 canvas.drawText(rowNum!!, rowNumRect.centerX(), rowNumRect.centerY(), rowNumPaint)
         }
     }
 
     private fun drawCinemaScreen(canvas: Canvas) {
-        canvas.drawPath(seatViewConfig.cinemaScreenViewPath, cinemaScreenPaint)
+        canvas.drawPath(config.cinemaScreenViewPath, cinemaScreenPaint)
         var yValue = 0.0f
-        if (SeatViewConfig.cinemaScreenViewSide == 0) yValue = seatViewConfig.cinemaScreenViewHeight / 2 + cinemaScreenTextPaint.textSize / 2 - 4 //top
-        if (SeatViewConfig.cinemaScreenViewSide == 1) yValue = seatViewConfig.windowHeight - (seatViewConfig.cinemaScreenViewHeight / 2 - (cinemaScreenTextPaint.textSize / 2)) //bottom
-        canvas.drawText(SeatViewConfig.cinemaScreenViewText, seatViewConfig.screenCenterX, yValue, cinemaScreenTextPaint)
+        if (config.cinemaScreenViewSide == 0) yValue = config.cinemaScreenViewHeight / 2 + cinemaScreenTextPaint.textSize / 2 - 4 //top
+        if (config.cinemaScreenViewSide == 1) yValue = config.windowHeight - (config.cinemaScreenViewHeight / 2 - (cinemaScreenTextPaint.textSize / 2)) //bottom
+        canvas.drawText(config.cinemaScreenViewText, config.screenCenterX, yValue, cinemaScreenTextPaint)
     }
 
     private fun drawCenterLine(canvas: Canvas) {
-        val linePath = seatViewConfig.centerLinePath
+        val linePath = config.centerLinePath
         canvas.drawPath(linePath, centerLinePaint)
     }
 
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
 
-            val newWidth = (seatViewConfig.seatWidth * detector.scaleFactor)
-            seatViewConfig.setSeatWidth(newWidth, detector.focusX, detector.focusY)
+            val newWidth = (config.seatWidth * detector.scaleFactor)
+            config.setSeatWidth(newWidth, detector.focusX, detector.focusY)
 
             invalidate()
             return true
@@ -390,7 +402,7 @@ class SeatView : View {
         if (event.pointerCount == 1) {
             gestureDetector.onTouchEvent(event)
         } else {
-            if (SeatViewConfig.zoomActive) {
+            if (config.zoomActive) {
                 mScaleDetector.onTouchEvent(event)
             }
         }
@@ -420,14 +432,14 @@ class SeatView : View {
     }
 
     private fun getVisibleThumbRect(thumbWidth: Float, thumbHeight: Float): RectF {
-        var left = -seatViewConfig.xOffset / seatViewConfig.virtualWidth * thumbWidth
+        var left = -config.xOffset / config.virtualWidth * thumbWidth
         left = Math.max(left, 0f)
-        var top = -seatViewConfig.yOffset / seatViewConfig.virtualHeight * thumbHeight
+        var top = -config.yOffset / config.virtualHeight * thumbHeight
         top = Math.max(top, 0f)
 
-        var height = thumbHeight * seatViewConfig.windowHeight / seatViewConfig.virtualHeight
+        var height = thumbHeight * config.windowHeight / config.virtualHeight
         height = Math.min(height, thumbHeight - top)
-        var width = thumbWidth * seatViewConfig.windowWidth / seatViewConfig.virtualWidth
+        var width = thumbWidth * config.windowWidth / config.virtualWidth
         width = Math.min(width, thumbWidth - left)
 
         val bottom = top + height
@@ -438,17 +450,17 @@ class SeatView : View {
 
     private fun drawThumbSeatView(canvas: Canvas) {
         if (!fingerOnScreen) return
-        if (seatViewConfig.THUMB_HEIGHT <= 0 || seatViewConfig.THUMB_WIDTH <= 0) {
+        if (config.THUMB_HEIGHT <= 0 || config.THUMB_WIDTH <= 0) {
             return
         }
 
-        thumbSeatViewPaint.color = Color.parseColor(SeatViewConfig.thumbSeatViewBackgroundColor)
+        thumbSeatViewPaint.color = Color.parseColor(config.thumbSeatViewBackgroundColor)
         thumbSeatViewPaint.style = Paint.Style.FILL
-        canvas.drawRect(0f, 0f, seatViewConfig.THUMB_WIDTH, seatViewConfig.THUMB_HEIGHT, thumbSeatViewPaint)
+        canvas.drawRect(0f, 0f, config.THUMB_WIDTH, config.THUMB_HEIGHT, thumbSeatViewPaint)
 
-        for (rowIndex in 0 until seatViewConfig.rowCount) {
-            for (columnIndex in 0 until seatViewConfig.columnCount) {
-                val seatBean = seatViewConfig.seatArray[rowIndex][columnIndex]
+        for (rowIndex in 0 until config.rowCount) {
+            for (columnIndex in 0 until config.columnCount) {
+                val seatBean = config.seatArray[rowIndex][columnIndex]
 
                 if (seatBean.type != Seat.TYPE.NOT_EXIST) {
                     val resourceName: String
@@ -460,15 +472,15 @@ class SeatView : View {
                         resourceName = seatBean.drawableResourceName
                         resourceColor = seatBean.drawableColor
                     }
-                    val drawBitmap = drawableToBitmap(seatBean.type.toString() + "_" + seatBean.isSelected, seatViewConfig.seatWidth, seatViewConfig.seatHeight, resourceName, resourceColor)
+                    val drawBitmap = drawableToBitmap(seatBean.type.toString() + "_" + seatBean.isSelected, config.seatWidth, config.seatHeight, resourceName, resourceColor)
 
 
                     if (drawBitmap != null)
                         canvas.drawBitmap(drawBitmap, null,
                                 getThumbSeatRect(
-                                        seatViewConfig.THUMB_SEAT_WIDTH, seatViewConfig.THUMB_SEAT_HEIGHT,
-                                        seatViewConfig.THUMB_GAP_INLINE, seatViewConfig.THUMB_GAP_NEWLINE,
-                                        seatViewConfig.THUMB_PADDING,
+                                        config.THUMB_SEAT_WIDTH, config.THUMB_SEAT_HEIGHT,
+                                        config.THUMB_GAP_INLINE, config.THUMB_GAP_NEWLINE,
+                                        config.THUMB_PADDING,
                                         rowIndex, columnIndex
                                 )
                                 , commonPaint)
@@ -477,16 +489,16 @@ class SeatView : View {
         }
 
         thumbSeatViewPaint.style = Paint.Style.STROKE
-        thumbSeatViewPaint.strokeWidth = SeatViewConfig.thumbSeatViewPointerWidth
-        thumbSeatViewPaint.color = Color.parseColor(SeatViewConfig.thumbSeatViewPointerColor)
-        canvas.drawRect(getVisibleThumbRect(seatViewConfig.THUMB_WIDTH, seatViewConfig.THUMB_HEIGHT), thumbSeatViewPaint)
+        thumbSeatViewPaint.strokeWidth = config.thumbSeatViewPointerWidth
+        thumbSeatViewPaint.color = Color.parseColor(config.thumbSeatViewPointerColor)
+        canvas.drawRect(getVisibleThumbRect(config.THUMB_WIDTH, config.THUMB_HEIGHT), thumbSeatViewPaint)
     }
 
     fun checkColumnIsEmpty(rowIndex: Int): Boolean {
         var isEmpty = true
 
-        for (columnIndex in 0 until seatViewConfig.columnCount) {
-            val seatBean = seatViewConfig.seatArray[rowIndex][columnIndex]
+        for (columnIndex in 0 until config.columnCount) {
+            val seatBean = config.seatArray[rowIndex][columnIndex]
             if (seatBean.type != Seat.TYPE.NOT_EXIST) {
                 isEmpty = false
             }
@@ -496,13 +508,13 @@ class SeatView : View {
     }
 
     fun isSeatSelected(rowIndex: Int, columnIndex: Int): Boolean {
-        return if (seatViewConfig.isSafeSelect(rowIndex, columnIndex)) {
-            seatViewConfig.seatArray[rowIndex][columnIndex].isSelected
+        return if (config.isSafeSelect(rowIndex, columnIndex)) {
+            config.seatArray[rowIndex][columnIndex].isSelected
         } else false
     }
 
     fun findSeatWithName(seatName: String): Seat? {
-        seatViewConfig.seatArray.forEachIndexed { rowIndex, arrayOfRows ->
+        config.seatArray.forEachIndexed { rowIndex, arrayOfRows ->
             arrayOfRows.forEachIndexed { columnIndex, seat ->
                 if (seatName.equals(seat.seatName)) {
                     return seat
@@ -513,8 +525,8 @@ class SeatView : View {
     }
 
     fun selectSeat(rowIndex: Int, columnIndex: Int) {
-        if (seatViewConfig.isSafeSelect(rowIndex, columnIndex)) {
-            val seatBean = seatViewConfig.seatArray[rowIndex][columnIndex]
+        if (config.isSafeSelect(rowIndex, columnIndex)) {
+            val seatBean = config.seatArray[rowIndex][columnIndex]
             if (!seatBean.isSelected) {
                 seatBean.isSelected = true
                 addSeatsInsideSelected(seatBean)
@@ -525,8 +537,8 @@ class SeatView : View {
     }
 
     fun releaseSeat(rowIndex: Int, columnIndex: Int) {
-        if (seatViewConfig.isSafeSelect(rowIndex, columnIndex)) {
-            val seatBean = seatViewConfig.seatArray[rowIndex][columnIndex]
+        if (config.isSafeSelect(rowIndex, columnIndex)) {
+            val seatBean = config.seatArray[rowIndex][columnIndex]
             if (seatBean.isSelected) {
                 seatBean.isSelected = false
                 removeSeatsInsideSelected(seatBean)

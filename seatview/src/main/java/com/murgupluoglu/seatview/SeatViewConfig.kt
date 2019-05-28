@@ -3,15 +3,12 @@ package com.murgupluoglu.seatview
 import android.content.Context
 import android.graphics.Path
 import android.graphics.RectF
-import android.util.Log
 import java.math.BigDecimal
 
-class SeatViewConfig(context: Context,
-                     windowWidth: Int, windowHeight: Int,
-                     seatarray: Array<Array<Seat>>, rowcount: Int, columncount: Int, rownames: HashMap<String, String>) {
+class SeatViewConfig(val context: Context) {
 
-    var seatArray: Array<Array<Seat>> = seatarray
-    var rowNames: HashMap<String, String> = rownames
+    var seatArray: Array<Array<Seat>> = arrayOf()
+    var rowNames: HashMap<String, String> = hashMapOf()
 
     lateinit var windowRectF: RectF
 
@@ -22,8 +19,8 @@ class SeatViewConfig(context: Context,
     /*seat config*/
     var virtualHeight: Float = 0f
     var virtualWidth: Float = 0f
-    var rowCount: Int = rowcount
-    var columnCount: Int = columncount
+    var rowCount: Int = 0
+    var columnCount: Int = 0
 
     var seatWidth = 0f
     var seatHeight = 0f
@@ -63,6 +60,39 @@ class SeatViewConfig(context: Context,
     var THUMB_GAP_INLINE: Float = 0f
     var THUMB_GAP_NEWLINE: Float = 0f
     var THUMB_PADDING: Float = 0f
+
+
+    //Cinema Screen
+    var cinemaScreenViewActive: Boolean = true
+    var cinemaScreenViewText: String = "Screen"
+    var cinemaScreenViewBackgroundColor: String = "#E5E5E5"
+    var cinemaScreenViewTextColor: String = "#202020"
+    var cinemaScreenViewSide: Int = 0
+    //
+    //Center Line
+    var centerLineActive: Boolean = true
+    var centerLineColor: String = "#bebebe"
+    var centerLineWidth: Float = 0.8f
+    //
+    //ThumbView
+    var thumbSeatViewActive: Boolean = false
+    var thumbSeatViewBackgroundColor: String = "#B0000000"
+    var thumbSeatViewPointerColor: String = "#FFFFFF00"
+    var thumbSeatViewPointerWidth: Float = 3f
+    //
+    //NumberBar
+    var seatNamesBarActive: Boolean = true
+    var seatNamesBarBackgroundColor: String = "#9F9F9F"
+    var seatNamesBarTextColor: String = "#9F9F9F"
+    var seatNamesBarBackgroundAlpha: Int = 200
+    //
+    var seatViewBackgroundColor: String = "#F4F4F4"
+    var zoomActive: Boolean = true
+    var zoomAfterClickActive: Boolean = true
+
+    var seatWidthHeightRatio: Float = 1f
+    var seatInlineGapWidthRatio: Float = 0.265f
+    var seatNewlineGapWidthRatio: Float = 0.304f
 
 
     val seatNamesBarRect: RectF
@@ -109,8 +139,8 @@ class SeatViewConfig(context: Context,
             return linePath
         }
 
-    init {
-        initSize(context, windowHeight, windowWidth)
+    fun calculateParameters(){
+        initSize(context, windowHeight.toInt(), windowWidth.toInt())
 
 
         val seatColumnCount = 2 + (4f * columnCount - 1) / 3f
@@ -140,7 +170,7 @@ class SeatViewConfig(context: Context,
         xOffset = xOffsetDefault
         yOffset = yOffsetDefault
 
-        initThumbSize()
+        calculateThumbParameters()
     }
 
     private fun initSize(context: Context, windowHeight: Int, windowWidth: Int) {
@@ -159,7 +189,7 @@ class SeatViewConfig(context: Context,
         windowRectF = RectF(0f, 0f, windowWidth.toFloat(), windowHeight.toFloat())
     }
 
-    private fun initThumbSize() {
+    private fun calculateThumbParameters() {
         THUMB_WIDTH = windowWidth * 0.35f
 
         val seatColumnCount = columnCount.toFloat() + seatInlineGapWidthRatio * (columnCount - 1) + 2f //padding = seatwidth
@@ -246,7 +276,6 @@ class SeatViewConfig(context: Context,
             if (seatViewRect.left < windowRect.left + seatNamesBarWidth) {
                 xOffset -= moveX
                 xOffset = xOffset.round(2)
-                Log.e("TAG", xOffset.toString())
             }
         } else {
             if (seatViewRect.right > windowRect.right) {
@@ -306,6 +335,12 @@ class SeatViewConfig(context: Context,
 
         xOffset = touchX - (virtualWidth * ratioX).toInt()
         yOffset = touchY - (virtualHeight * ratioY).toInt()
+        if(yOffset > yOffsetDefault){
+            yOffset = yOffsetDefault
+        }
+        if(xOffset > xOffsetDefault){
+            xOffset = xOffsetDefault
+        }
     }
 
     fun isSafeSelect(rowIndex: Int, columnIndex: Int): Boolean {
@@ -313,38 +348,7 @@ class SeatViewConfig(context: Context,
     }
 
     companion object {
-        val SIDE_TOP = 0
-        val SIDE_BOTTOM = 1
-        //Cinema Screen
-        var cinemaScreenViewActive: Boolean = true
-        var cinemaScreenViewText: String = "Screen"
-        var cinemaScreenViewBackgroundColor: String = "#E5E5E5"
-        var cinemaScreenViewTextColor: String = "#202020"
-        var cinemaScreenViewSide: Int = 0
-        //
-        //Center Line
-        var centerLineActive: Boolean = true
-        var centerLineColor: String = "#bebebe"
-        var centerLineWidth: Float = 0.8f
-        //
-        //ThumbView
-        var thumbSeatViewActive: Boolean = false
-        var thumbSeatViewBackgroundColor: String = "#B0000000"
-        var thumbSeatViewPointerColor: String = "#FFFFFF00"
-        var thumbSeatViewPointerWidth: Float = 3f
-        //
-        //NumberBar
-        var seatNamesBarActive: Boolean = true
-        var seatNamesBarBackgroundColor: String = "#9F9F9F"
-        var seatNamesBarTextColor: String = "#9F9F9F"
-        var seatNamesBarBackgroundAlpha: Int = 200
-        //
-        var seatViewBackgroundColor: String = "#F4F4F4"
-        var zoomActive: Boolean = true
-        var zoomAfterClickActive: Boolean = true
-
-        var seatWidthHeightRatio: Float = 1f
-        var seatInlineGapWidthRatio: Float = 0.265f
-        var seatNewlineGapWidthRatio: Float = 0.304f
+        const val SIDE_TOP = 0
+        const val SIDE_BOTTOM = 1
     }
 }

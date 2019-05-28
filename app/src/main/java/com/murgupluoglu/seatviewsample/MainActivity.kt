@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        seatView.seatClickListener = (object : SeatViewListener {
+        seatView.seatClickListener = object : SeatViewListener {
 
             override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
                 Toast.makeText(this@MainActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
             override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
                 return clickedSeat.type != Seat.TYPE.UNSELECTABLE
             }
-        })
+        }
 
         /* generate Sample
         val rowCount = 16
@@ -79,56 +79,56 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSwitches(){
-        switch_seatnamesbar.isChecked = SeatViewConfig.seatNamesBarActive
+        switch_seatnamesbar.isChecked = seatView.config.seatNamesBarActive
         switch_seatnamesbar.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.seatNamesBarActive = b
+            seatView.config.seatNamesBarActive = b
             seatView.invalidate()
         }
 
-        switch_centerLine.isChecked = SeatViewConfig.centerLineActive
+        switch_centerLine.isChecked = seatView.config.centerLineActive
         switch_centerLine.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.centerLineActive = b
+            seatView.config.centerLineActive = b
             seatView.invalidate()
         }
 
-        switch_cinemaScreen.isChecked = SeatViewConfig.cinemaScreenViewActive
+        switch_cinemaScreen.isChecked = seatView.config.cinemaScreenViewActive
         switch_cinemaScreen.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.cinemaScreenViewActive = b
+            seatView.config.cinemaScreenViewActive = b
             seatView.invalidate()
         }
 
-        switch_thumbSeatView.isChecked = SeatViewConfig.thumbSeatViewActive
+        switch_thumbSeatView.isChecked = seatView.config.thumbSeatViewActive
         switch_thumbSeatView.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.thumbSeatViewActive = b
+            seatView.config.thumbSeatViewActive = b
             seatView.invalidate()
         }
 
-        switch_zoomActive.isChecked = SeatViewConfig.zoomActive
+        switch_zoomActive.isChecked = seatView.config.zoomActive
         switch_zoomActive.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.zoomActive = b
+            seatView.config.zoomActive = b
             seatView.invalidate()
         }
 
-        switch_zoomAfterClick.isChecked = SeatViewConfig.zoomAfterClickActive
+        switch_zoomAfterClick.isChecked = seatView.config.zoomAfterClickActive
         switch_zoomAfterClick.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.zoomAfterClickActive = b
+            seatView.config.zoomAfterClickActive = b
             seatView.invalidate()
         }
 
-        switch_cinameScreenSide.isChecked = (SeatViewConfig.cinemaScreenViewSide == SeatViewConfig.SIDE_TOP)
+        switch_cinameScreenSide.isChecked = (seatView.config.cinemaScreenViewSide == SeatViewConfig.SIDE_TOP)
         switch_cinameScreenSide.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.cinemaScreenViewSide = if(b) SeatViewConfig.SIDE_TOP else SeatViewConfig.SIDE_BOTTOM
+            seatView.config.cinemaScreenViewSide = if(b) SeatViewConfig.SIDE_TOP else SeatViewConfig.SIDE_BOTTOM
             seatView.invalidate()
         }
 
-        switch_seatViewBackgroundColor.isChecked = (SeatViewConfig.seatViewBackgroundColor.equals("#F4F4F4"))
+        switch_seatViewBackgroundColor.isChecked = (seatView.config.seatViewBackgroundColor.equals("#F4F4F4"))
         switch_seatViewBackgroundColor.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.seatViewBackgroundColor = if(b) "#F4F4F4" else "#000000"
+            seatView.config.seatViewBackgroundColor = if(b) "#F4F4F4" else "#000000"
             seatView.invalidate()
         }
 
         switch_cinemaScreenText.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            SeatViewConfig.cinemaScreenViewText = if(b) "Screen" else "Cinema Screen"
+            seatView.config.cinemaScreenViewText = if(b) "Screen" else "Cinema Screen"
             seatView.invalidate()
         }
     }
