@@ -50,10 +50,10 @@ class SeatView : View {
 
     private var fingerOnScreen = false
 
-    var seatClickListener: SeatViewListener? = null
+    lateinit var seatViewListener: SeatViewListener
     val selectedSeats = HashMap<String, Seat>()
 
-    lateinit var mScaleDetector: ScaleGestureDetector
+    private lateinit var mScaleDetector: ScaleGestureDetector
 
     private val hideThumbViewRunnable = Runnable { if (!fingerOnScreen) invalidate() }
 
@@ -74,11 +74,11 @@ class SeatView : View {
                 if (clickedSeat.type != Seat.TYPE.NOT_EXIST) {
                     if (selectedSeats[clickedSeat.id] != null) {
                         removeSeatsInsideSelected(clickedSeat)
-                        seatClickListener!!.seatReleased(clickedSeat, selectedSeats)
+                        seatViewListener.seatReleased(clickedSeat, selectedSeats)
                     } else {
-                        if (seatClickListener!!.canSelectSeat(clickedSeat, selectedSeats)) {
+                        if (seatViewListener.canSelectSeat(clickedSeat, selectedSeats)) {
                             addSeatsInsideSelected(clickedSeat)
-                            seatClickListener!!.seatSelected(clickedSeat, selectedSeats)
+                            seatViewListener.seatSelected(clickedSeat, selectedSeats)
                         }
                     }
                 }
@@ -530,7 +530,7 @@ class SeatView : View {
             if (!seatBean.isSelected) {
                 seatBean.isSelected = true
                 addSeatsInsideSelected(seatBean)
-                seatClickListener!!.seatSelected(seatBean, selectedSeats)
+                seatViewListener.seatSelected(seatBean, selectedSeats)
                 invalidate()
             }
         }
@@ -542,7 +542,7 @@ class SeatView : View {
             if (seatBean.isSelected) {
                 seatBean.isSelected = false
                 removeSeatsInsideSelected(seatBean)
-                seatClickListener!!.seatReleased(seatBean, selectedSeats)
+                seatViewListener.seatReleased(seatBean, selectedSeats)
                 invalidate()
             }
         }

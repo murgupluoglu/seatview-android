@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        seatView.seatClickListener = object : SeatViewListener {
+        seatView.seatViewListener = object : SeatViewListener {
 
             override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
                 Toast.makeText(this@MainActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
@@ -40,16 +40,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        /* generate Sample
-        val rowCount = 16
-        val columnCount = 29
-        val rowNames: HashMap<String, String> = HashMap()
-        val seatArray = generateSample(rowCount, columnCount, rowNames)
+        generateSample()
+    }
 
-        seatView!!.initSeatView(seatArray, rowCount, columnCount, rowNames)
-        */
+    private fun generateSample(){
+        val rowCount = 50
+        val columnCount = 50
+        //val rowNames: HashMap<String, String> = HashMap()
+        val seatArray = generateSample(rowCount, columnCount)
 
-        //loadFromAssets Sample
+        seatView.initSeatView(seatArray, rowCount, columnCount, hashMapOf())
+    }
+
+    private fun defaultSample(){
         val rowNames: HashMap<String, String> = HashMap()
 
         val sample = JSONObject(loadJSONFromAsset())
@@ -245,13 +248,11 @@ class MainActivity : AppCompatActivity() {
         return jsonString
     }
 
-    fun generateSample(rowCount: Int, columnCount: Int, rowNames: HashMap<String, String>): Array<Array<Seat>> {
-        val rowNamesArray = arrayOf("A", "B", "C", "D", "E", "F", "G", "H", "I", "G", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z")
+    private fun generateSample(rowCount: Int, columnCount: Int): Array<Array<Seat>> {
 
         val seatArray = Array(rowCount) { Array(columnCount) { Seat() } }
 
         seatArray.forEachIndexed { rowIndex, arrayOfSeats ->
-            rowNames[rowIndex.toString()] = rowNamesArray[rowIndex]
 
             arrayOfSeats.forEachIndexed { columnIndex, seat ->
 
