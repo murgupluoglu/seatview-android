@@ -4,32 +4,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="#BFBBBB">
 
-    <com.murgupluoglu.seatview.SeatView xmlns:seatview="http://schemas.android.com/apk/res-auto"
+    <com.murgupluoglu.seatview.SeatView
         android:id="@+id/seatView"
         android:layout_width="0dp"
-        android:layout_height="300dp"
+        android:layout_height="0dp"
         android:layout_margin="0dp"
+        app:centerLineActive="true"
+        app:centerLineColor="#e600ff"
+        app:centerLineWidth="2.8"
+        app:cinemaScreenViewActive="true"
+        app:cinemaScreenViewBackgroundColor="#F44336"
+        app:cinemaScreenViewSide="top"
+        app:cinemaScreenViewText="Cinema Screen"
+        app:cinemaScreenViewTextColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        seatview:centerLineActive="true"
-        seatview:centerLineColor="#e600ff"
-        seatview:centerLineWidth="2.8"
-        seatview:cinemaScreenViewActive="true"
-        seatview:cinemaScreenViewBackgroundColor="#F44336"
-        seatview:cinemaScreenViewSide="top"
-        seatview:cinemaScreenViewText="Cinema Screen"
-        seatview:cinemaScreenViewTextColor="#ffffff"
-        seatview:seatNamesBarActive="true"
-        seatview:seatViewBackgroundColor="#F4F4F4"
-        seatview:thumbSeatViewActive="false"
-        seatview:thumbSeatViewBackgroundColor="#bcb295"
-        seatview:thumbSeatViewPointerColor="#ffee00"
-        seatview:thumbSeatViewPointerWidth="5"
-        seatview:zoomActive="true"
-        seatview:zoomAfterClickActive="false" />
+        app:seatNamesBarActive="true"
+        app:seatViewBackgroundColor="#F4F4F4"
+        app:thumbSeatViewActive="false"
+        app:thumbSeatViewBackgroundColor="#bcb295"
+        app:thumbSeatViewPointerColor="#ffee00"
+        app:thumbSeatViewPointerWidth="5"
+        app:zoomActive="true"
+        app:zoomAfterClickActive="false" />
 
 
     <LinearLayout

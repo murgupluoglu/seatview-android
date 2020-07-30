@@ -1,12 +1,13 @@
 package com.murgupluoglu.seatviewsample
 
+import android.graphics.Color
 import android.os.Bundle
-import android.widget.CompoundButton
+import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.murgupluoglu.seatview.Seat
-import com.murgupluoglu.seatview.SeatViewConfig
 import com.murgupluoglu.seatview.SeatViewListener
+import com.murgupluoglu.seatviewsample.MainActivity.MY_TYPES.DISABLED_PERSON
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -25,14 +26,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        seatView.seatViewListener = object : SeatViewListener {
+        seatView.config.isDebug = true
+        seatView.config.backgroundColor = Color.parseColor("#F4F4F4")
+        seatView.config.centerLineConfig.isActive = true
+        seatView.config.centerLineConfig.isVertical = false
 
-            override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-                Toast.makeText(this@MainActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
-            }
+        seatView.seatViewListener = object : SeatViewListener {
 
             override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
                 Toast.makeText(this@MainActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
+                Toast.makeText(this@MainActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
             }
 
             override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
@@ -41,11 +47,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         generateSample()
+        //defaultSample()
+
+        Handler().postDelayed({
+            //seatView.selectSeat(9, 9)
+        }, 5 * 1000)
     }
 
     private fun generateSample(){
-        val rowCount = 50
-        val columnCount = 50
+        val rowCount = 1
+        val columnCount = 11
         //val rowNames: HashMap<String, String> = HashMap()
         val seatArray = generateSample(rowCount, columnCount)
 
@@ -76,63 +87,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        }
-
-        setSwitches()
-    }
-
-    private fun setSwitches(){
-        switch_seatnamesbar.isChecked = seatView.config.seatNamesBarActive
-        switch_seatnamesbar.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.seatNamesBarActive = b
-            seatView.invalidate()
-        }
-
-        switch_centerLine.isChecked = seatView.config.centerLineActive
-        switch_centerLine.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.centerLineActive = b
-            seatView.invalidate()
-        }
-
-        switch_cinemaScreen.isChecked = seatView.config.cinemaScreenViewActive
-        switch_cinemaScreen.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.cinemaScreenViewActive = b
-            seatView.invalidate()
-        }
-
-        switch_thumbSeatView.isChecked = seatView.config.thumbSeatViewActive
-        switch_thumbSeatView.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.thumbSeatViewActive = b
-            seatView.invalidate()
-        }
-
-        switch_zoomActive.isChecked = seatView.config.zoomActive
-        switch_zoomActive.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.zoomActive = b
-            seatView.invalidate()
-        }
-
-        switch_zoomAfterClick.isChecked = seatView.config.zoomAfterClickActive
-        switch_zoomAfterClick.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.zoomAfterClickActive = b
-            seatView.invalidate()
-        }
-
-        switch_cinameScreenSide.isChecked = (seatView.config.cinemaScreenViewSide == SeatViewConfig.SIDE_TOP)
-        switch_cinameScreenSide.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.cinemaScreenViewSide = if(b) SeatViewConfig.SIDE_TOP else SeatViewConfig.SIDE_BOTTOM
-            seatView.invalidate()
-        }
-
-        switch_seatViewBackgroundColor.isChecked = (seatView.config.seatViewBackgroundColor.equals("#F4F4F4"))
-        switch_seatViewBackgroundColor.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.seatViewBackgroundColor = if(b) "#F4F4F4" else "#000000"
-            seatView.invalidate()
-        }
-
-        switch_cinemaScreenText.setOnCheckedChangeListener { compoundButton: CompoundButton, b: Boolean ->
-            seatView.config.cinemaScreenViewText = if(b) "Screen" else "Cinema Screen"
-            seatView.invalidate()
         }
     }
 
@@ -258,22 +212,15 @@ class MainActivity : AppCompatActivity() {
 
                 seat.id = (rowIndex.toString() + "_" + columnIndex.toString())
                 seat.rowName = "Row: $rowIndex Column: $columnIndex"
+                seat.seatName = "Row: $rowIndex Column: $columnIndex"
                 seat.columnIndex = columnIndex
                 seat.rowIndex = rowIndex
 
-                if (rowIndex == 3) {
-                    seat.type = Seat.TYPE.UNSELECTABLE
-                    seat.drawableColor = "#e57373"
-                } else if (rowIndex == 0 && columnIndex == 7) {
-                    seat.type = MY_TYPES.DISABLED_PERSON
-                    seat.drawableColor = "#fff176"
-                    seat.selectedDrawableColor = "#0d47a1"
-                } else if (rowIndex == 5) {
-                    seat.type = Seat.TYPE.SELECTABLE
-                    seat.isSelected = true
-                    seat.drawableColor = "#4fc3f7"
-                    seat.selectedDrawableColor = "#c700ff"
-                } else {
+                if(rowIndex == 0 && columnIndex == 0 || rowIndex == rowCount - 1 && columnIndex == columnCount - 1){
+                    seat.type = DISABLED_PERSON
+                    seat.drawableColor = "#ff00cc"
+                    seat.selectedDrawableColor = "#000000"
+                }else{
                     seat.type = Seat.TYPE.SELECTABLE
                     seat.drawableColor = "#4fc3f7"
                     seat.selectedDrawableColor = "#c700ff"

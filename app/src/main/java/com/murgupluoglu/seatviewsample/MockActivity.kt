@@ -32,15 +32,13 @@ class MockActivity : AppCompatActivity() {
                 loadSample(seatArray, rowNames, rowArray, rowCount),
                 rowCount, columnCount, rowNames
         )
-
-        seatView.config.cinemaScreenViewText = screenName
     }
 
     private fun loadSample(seatArray: Array<Array<Seat>>, rowNames: HashMap<String, String>, rowArray: JSONArray, rowCount: Int): Array<Array<Seat>> {
 
         val reverseSeats = true
 
-        for (index in 0..(rowArray.length() - 1)) {
+        for (index in 0 until rowArray.length()) {
 
             val oneRow = rowArray.getJSONObject(index)
 
@@ -53,7 +51,7 @@ class MockActivity : AppCompatActivity() {
             }
             rowNames.put(rowIndex.toString(), rowName)
 
-            for (columnIndex in 0..(seats.length() - 1)) {
+            for (columnIndex in 0 until seats.length()) {
                 val seatObject = seats.getJSONObject(columnIndex)
 
                 var rowIndexObject = seatObject.getInt("rowIndex")
