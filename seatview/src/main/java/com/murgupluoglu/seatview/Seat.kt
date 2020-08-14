@@ -28,16 +28,16 @@ class Seat {
     var multipleType: Int = MULTIPLETYPE.NOTMULTIPLE
 
     object TYPE {
-        val NOT_EXIST = 0
-        val SELECTABLE = 1
-        val UNSELECTABLE = 2
+        const val NOT_EXIST = 0
+        const val SELECTABLE = 1
+        const val UNSELECTABLE = 2
     }
 
     object MULTIPLETYPE {
-        val NOTMULTIPLE = -1
-        val LEFT = 0
-        val CENTER = 1
-        val RIGHT = 2
+        const val NOTMULTIPLE = -1
+        const val LEFT = 0
+        const val CENTER = 1
+        const val RIGHT = 2
     }
 
 }
