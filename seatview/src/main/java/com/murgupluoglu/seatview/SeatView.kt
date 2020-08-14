@@ -14,7 +14,7 @@ import java.util.*
 import kotlin.math.floor
 
 
-class SeatView@JvmOverloads constructor(
+class SeatView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
@@ -148,7 +148,7 @@ class SeatView@JvmOverloads constructor(
         canvas.drawColor(config.backgroundColor)
         drawSeat(canvas)
 
-        if(config.centerLineConfig.isActive){
+        if (config.centerLineConfig.isActive) {
             drawCenterLine(this, canvas)
         }
 
@@ -230,14 +230,14 @@ class SeatView@JvmOverloads constructor(
                 drawable = ContextCompat.getDrawable(context, resId)
             }
             if (drawable != null) {
-                if (!color.equals("null")) {
+                if (color != "null") {
                     DrawableCompat.setTint(drawable, Color.parseColor(color))
                 }
                 bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
                 val canvas = Canvas(bitmap!!)
                 drawable.setBounds(0, 0, width.toInt(), height.toInt())
                 drawable.draw(canvas)
-                bitmaps.set(seatType, bitmap)
+                bitmaps[seatType] = bitmap
             }
         }
 
@@ -272,17 +272,18 @@ class SeatView@JvmOverloads constructor(
         }
     }
 
-    private fun RectF.scale(factor: Float) {
+    private fun RectF.scale(factor: Float): RectF {
         val oldWidth = width()
         val oldHeight = height()
         val rectCenterX = left + oldWidth / 2F
         val rectCenterY = top + oldHeight / 2F
         val newWidth = oldWidth * factor
         val newHeight = oldHeight * factor
-        left = rectCenterX - newWidth / 2F
-        right = rectCenterX + newWidth / 2F
-        top = rectCenterY - newHeight / 2F
-        bottom = rectCenterY + newHeight / 2F
+        val left = rectCenterX - newWidth / 2F
+        val right = rectCenterX + newWidth / 2F
+        val top = rectCenterY - newHeight / 2F
+        val bottom = rectCenterY + newHeight / 2F
+        return RectF(left, right, top, bottom)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -358,7 +359,7 @@ class SeatView@JvmOverloads constructor(
         }
 
         var virtualWidth = columnCount * (seatWidth + seatInlineGap) - seatInlineGap
-        if(virtualWidth < windowRectF.width()){
+        if (virtualWidth < windowRectF.width()) {
             //virtualWidth = windowRectF.width()
         }
         val virtualHeight = rowCount * (seatHeight + seatNewlineGap) - seatNewlineGap
@@ -375,7 +376,7 @@ class SeatView@JvmOverloads constructor(
 
     /**
      * Get seat rect for given rowIndex and columnIndex
-     * Seat react is using for draw seat at correct place
+     * Seat rect is using for draw seat at correct place
      */
     private fun getSeatRect(rowIndex: Int, columnIndex: Int, seatBean: Seat): RectF {
 
@@ -420,11 +421,11 @@ class SeatView@JvmOverloads constructor(
 
         val possibleRectF = RectF(virtualRectF.left, virtualRectF.top, virtualRectF.right, virtualRectF.bottom)
         possibleRectF.offset(-moveX, 0f)
-        if(possibleRectF.left <= windowRectF.left && possibleRectF.right >= windowRectF.right){
+        if (possibleRectF.left <= windowRectF.left && possibleRectF.right >= windowRectF.right) {
             virtualRectF.offset(-moveX, 0f)
         }
         possibleRectF.offset(0f, -moveY)
-        if(possibleRectF.top <= windowRectF.top && possibleRectF.bottom >= windowRectF.bottom){
+        if (possibleRectF.top <= windowRectF.top && possibleRectF.bottom >= windowRectF.bottom) {
             virtualRectF.offset(0f, -moveY)
         }
     }
