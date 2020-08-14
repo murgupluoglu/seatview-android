@@ -35,8 +35,5 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
     //
 
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-}
-repositories {
-    mavenCentral()
+    implementation 'androidx.appcompat:appcompat:1.2.0'
 }
