@@ -218,12 +218,16 @@ class MainActivity : AppCompatActivity() {
 
                 if(rowIndex == 0 && columnIndex == 0 || rowIndex == rowCount - 1 && columnIndex == columnCount - 1){
                     seat.type = DISABLED_PERSON
-                    seat.drawableColor = "#ff00cc"
-                    seat.selectedDrawableColor = "#000000"
+                    seat.drawableResourceName = "seat_disabledperson"
+                    seat.selectedDrawableResourceName = "seat_selected"
+                    //seat.drawableColor = "#ff00cc"
+                    //seat.selectedDrawableColor = "#000000"
                 }else{
                     seat.type = Seat.TYPE.SELECTABLE
-                    seat.drawableColor = "#4fc3f7"
-                    seat.selectedDrawableColor = "#c700ff"
+                    seat.drawableResourceName = "seat_available"
+                    seat.selectedDrawableResourceName = "seat_selected"
+                    //seat.drawableColor = "#4fc3f7"
+                    //seat.selectedDrawableColor = "#c700ff"
                 }
             }
         }
