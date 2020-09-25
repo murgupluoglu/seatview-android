@@ -30,7 +30,7 @@ class MockActivity : AppCompatActivity() {
 
         seatView.initSeatView(
                 loadSample(seatArray, rowNames, rowArray, rowCount),
-                rowCount, columnCount, rowNames
+                rowCount, columnCount
         )
     }
 

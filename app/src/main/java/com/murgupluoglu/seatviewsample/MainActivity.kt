@@ -1,6 +1,5 @@
 package com.murgupluoglu.seatviewsample
 
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.widget.Toast
@@ -28,10 +27,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        seatView.config.backgroundColor = Color.parseColor("#F4F4F4")
-
         seatView.extensions.add(DebugExtension())
         seatView.extensions.add(CenterLinesViewExtension())
+
+        seatView.seatDrawer = NumberSeatDrawer()
 
         seatView.seatViewListener = object : SeatViewListener {
 
@@ -62,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         //val rowNames: HashMap<String, String> = HashMap()
         val seatArray = generateSample(rowCount, columnCount)
 
-        seatView.initSeatView(seatArray, rowCount, columnCount, hashMapOf())
+        seatView.initSeatView(seatArray, rowCount, columnCount)
     }
 
     private fun defaultSample(){
@@ -75,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         val rowArray = sample.getJSONObject("screen").getJSONArray("rows")
 
 
-        seatView.initSeatView(loadSample(seatArray, rowNames, rowArray, rowCount, columnCount), rowCount, columnCount, rowNames)
+        seatView.initSeatView(loadSample(seatArray, rowNames, rowArray, rowCount, columnCount), rowCount, columnCount)
 
         button_test.setOnClickListener {
 
@@ -236,4 +235,5 @@ class MainActivity : AppCompatActivity() {
 
         return seatArray
     }
+
 }

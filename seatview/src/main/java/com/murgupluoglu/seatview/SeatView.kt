@@ -2,14 +2,15 @@ package com.murgupluoglu.seatview
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.*
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import com.murgupluoglu.seatview.extensions.SeatViewExtension
+import com.murgupluoglu.seatview.seatdrawer.CachedSeatDrawer
+import com.murgupluoglu.seatview.seatdrawer.SeatDrawer
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.floor
@@ -23,7 +24,6 @@ class SeatView @JvmOverloads constructor(
     var config = SeatViewConfig()
     var seatArray: Array<Array<Seat>> = arrayOf()
     val selectedSeats = HashMap<String, Seat>()
-    var rowNames: HashMap<String, String> = hashMapOf()
     var rowCount: Int = 0
     var columnCount: Int = 0
     lateinit var seatViewListener: SeatViewListener
@@ -46,12 +46,9 @@ class SeatView @JvmOverloads constructor(
     private var seatNewlineGap: Float = seatWidth * config.seatNewlineGapWidthRatio
 
     private var scaleDetector = ScaleGestureDetector(context, ScaleListener())
-    private var bitmaps = HashMap<String, Bitmap>()
-    private val commonPaint = Paint().apply {
-        isAntiAlias = true
-    }
 
     val extensions = arrayListOf<SeatViewExtension>()
+    var seatDrawer : SeatDrawer = CachedSeatDrawer(context)
 
     private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
@@ -111,8 +108,7 @@ class SeatView @JvmOverloads constructor(
         }
     }
 
-    fun initSeatView(_seatArray: Array<Array<Seat>>, _rowCount: Int, _columnCount: Int, _rowNames: HashMap<String, String>) {
-        bitmaps = HashMap()
+    fun initSeatView(_seatArray: Array<Array<Seat>>, _rowCount: Int, _columnCount: Int) {
 
         //add all pre-selected seat inside selectedSeats
         seatArray.forEachIndexed { rowIndex, arrayOfSeats ->
@@ -134,7 +130,6 @@ class SeatView @JvmOverloads constructor(
                 seatArray = _seatArray
                 rowCount = _rowCount
                 columnCount = _columnCount
-                rowNames = _rowNames
                 initParameters()
                 viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
@@ -169,15 +164,6 @@ class SeatView @JvmOverloads constructor(
                 }
 
                 if (seatBean.type != Seat.TYPE.NOT_EXIST) {
-                    val resourceName: String
-                    val resourceColor: String
-                    if (seatBean.isSelected) {
-                        resourceName = seatBean.selectedDrawableResourceName
-                        resourceColor = seatBean.selectedDrawableColor
-                    } else {
-                        resourceName = seatBean.drawableResourceName
-                        resourceColor = seatBean.drawableColor
-                    }
 
                     var calculatedSeatWidth = seatWidth
                     if (seatBean.multipleType == Seat.MULTIPLETYPE.LEFT || seatBean.multipleType == Seat.MULTIPLETYPE.RIGHT) {
@@ -185,39 +171,20 @@ class SeatView @JvmOverloads constructor(
                     } else if (seatBean.multipleType == Seat.MULTIPLETYPE.CENTER) {
                         calculatedSeatWidth = seatWidth + seatInlineGap
                     }
-                    val seatTypeId = seatBean.type.toString() + "_" + seatBean.multipleType + "_" + seatBean.drawableColor + "_" + seatBean.isSelected
-                    val drawBitmap = drawableToBitmap(seatTypeId, calculatedSeatWidth, seatHeight, resourceName, resourceColor)
 
-
-                    if (drawBitmap != null) canvas.drawBitmap(drawBitmap, null, seatRectF, commonPaint)
+                    seatDrawer.draw(
+                            seatView = this@SeatView,
+                            canvas = canvas,
+                            isInEditMode = isInEditMode,
+                            seatBean = seatBean,
+                            seatRectF = seatRectF,
+                            seatWidth = seatWidth,
+                            seatHeight = seatHeight,
+                            calculatedSeatWidth = calculatedSeatWidth
+                    )
                 }
             }
         }
-    }
-
-    private fun drawableToBitmap(seatType: String, width: Float, height: Float, resourceName: String, color: String): Bitmap? {
-        var bitmap: Bitmap? = null
-        if (bitmaps[seatType] != null) {
-            bitmap = bitmaps[seatType]!!
-        } else {
-            var drawable = ContextCompat.getDrawable(context, R.drawable.square_seat)
-            if (!isInEditMode && resourceName != "null") {
-                val resId = resources.getIdentifier(resourceName, "drawable", context.packageName)
-                drawable = ContextCompat.getDrawable(context, resId)
-            }
-            if (drawable != null) {
-                if (color != "null") {
-                    DrawableCompat.setTint(drawable, Color.parseColor(color))
-                }
-                bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap!!)
-                drawable.setBounds(0, 0, width.toInt(), height.toInt())
-                drawable.draw(canvas)
-                bitmaps[seatType] = bitmap
-            }
-        }
-
-        return bitmap
     }
 
 
@@ -339,7 +306,6 @@ class SeatView @JvmOverloads constructor(
     fun selectSeat(rowIndex: Int, columnIndex: Int) {
         if (isSafeSelect(rowIndex, columnIndex)) {
             val seatBean = seatArray[rowIndex][columnIndex]
-            // TODO centerGivenSeat(seatBean)
             if (!seatBean.isSelected) {
                 seatBean.isSelected = true
                 addSeatsInsideSelected(seatBean)
@@ -457,4 +423,54 @@ class SeatView @JvmOverloads constructor(
             seatArray[rowIndex][columnIndex]
         } else null
     }
+
+    init {
+        val a = context.obtainStyledAttributes(attrs, R.styleable.SeatView, 0, 0)
+        //Kotlin 'when' doesn't work inside isInEditMode
+        if (a.hasValue(R.styleable.SeatView_seatViewBackgroundColor)) config.backgroundColor = Color.parseColor(a.getString(R.styleable.SeatView_seatViewBackgroundColor))
+
+        a.recycle()
+
+        if (isInEditMode) { //this is just for layout editor preview
+
+            //TODO there is a bug when margin added
+            val widthPixels = Resources.getSystem().displayMetrics.widthPixels
+            val heightPixels = Resources.getSystem().displayMetrics.heightPixels
+
+            val sRandom = Random()
+
+            val sRowCount = 10
+            val sColumnCount = 10
+            val sSeatArray = Array(sRowCount) { Array(sColumnCount) { Seat() } }
+
+            sSeatArray.forEachIndexed { rowIndex, arrayOfSeats ->
+                arrayOfSeats.forEachIndexed { columnIndex, seat ->
+                    val rInteger = sRandom.nextInt(3)
+                    if (rowIndex != 3) {
+                        if (rInteger == Seat.TYPE.UNSELECTABLE) {
+                            seat.type = Seat.TYPE.UNSELECTABLE
+                            seat.drawableColor = "#e57373"
+                        } else {
+                            seat.type = Seat.TYPE.SELECTABLE
+                            seat.drawableColor = "#64b5f6"
+                        }
+                    } else {
+                        seat.type = Seat.TYPE.NOT_EXIST
+                    }
+                }
+            }
+
+            windowRectF = RectF(
+                    0f,
+                    0f,
+                    widthPixels.toFloat(),
+                    heightPixels.toFloat()
+            )
+            seatArray = sSeatArray
+            rowCount = sRowCount
+            columnCount = sColumnCount
+            initParameters()
+        }
+    }
+
 }
