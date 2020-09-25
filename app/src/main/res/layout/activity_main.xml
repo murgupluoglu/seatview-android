@@ -11,7 +11,7 @@
         android:id="@+id/seatView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="0dp"
+        android:layout_margin="20dp"
         app:centerLineActive="true"
         app:centerLineColor="#e600ff"
         app:centerLineWidth="2.8"

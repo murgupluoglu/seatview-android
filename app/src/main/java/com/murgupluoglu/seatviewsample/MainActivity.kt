@@ -7,6 +7,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.murgupluoglu.seatview.Seat
 import com.murgupluoglu.seatview.SeatViewListener
+import com.murgupluoglu.seatview.extensions.CenterLinesViewExtension
+import com.murgupluoglu.seatview.extensions.DebugExtension
 import com.murgupluoglu.seatviewsample.MainActivity.MY_TYPES.DISABLED_PERSON
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONArray
@@ -26,10 +28,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        seatView.config.isDebug = true
         seatView.config.backgroundColor = Color.parseColor("#F4F4F4")
-        seatView.config.centerLineConfig.isActive = true
-        seatView.config.centerLineConfig.isVertical = false
+
+        seatView.extensions.add(DebugExtension())
+        seatView.extensions.add(CenterLinesViewExtension())
 
         seatView.seatViewListener = object : SeatViewListener {
 
@@ -55,8 +57,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun generateSample(){
-        val rowCount = 1
-        val columnCount = 11
+        val rowCount = 10
+        val columnCount = 10
         //val rowNames: HashMap<String, String> = HashMap()
         val seatArray = generateSample(rowCount, columnCount)
 

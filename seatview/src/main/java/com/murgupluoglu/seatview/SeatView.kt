@@ -2,15 +2,16 @@ package com.murgupluoglu.seatview
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.*
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
-import java.math.BigDecimal
+import com.murgupluoglu.seatview.extensions.SeatViewExtension
 import java.util.*
+import kotlin.math.abs
 import kotlin.math.floor
 
 
@@ -34,8 +35,8 @@ class SeatView @JvmOverloads constructor(
     lateinit var virtualRectF: RectF
         private set
 
-    private var seatMinHeight: Float = config.seatMinWidth / config.seatWidthHeightRatio
-    private var seatMaxHeight: Float = config.seatMaxWidth / config.seatWidthHeightRatio
+    //private var seatMinHeight: Float = config.seatMinWidth / config.seatWidthHeightRatio
+    //private var seatMaxHeight: Float = config.seatMaxWidth / config.seatWidthHeightRatio
     private var seatDefaultHeight: Float = config.seatDefaultWidth / config.seatWidthHeightRatio
 
     private var seatWidth = config.seatDefaultWidth
@@ -44,13 +45,13 @@ class SeatView @JvmOverloads constructor(
     private var seatInlineGap: Float = seatWidth * config.seatInlineGapWidthRatio
     private var seatNewlineGap: Float = seatWidth * config.seatNewlineGapWidthRatio
 
-    private var scaleDetector: ScaleGestureDetector
+    private var scaleDetector = ScaleGestureDetector(context, ScaleListener())
     private var bitmaps = HashMap<String, Bitmap>()
     private val commonPaint = Paint().apply {
         isAntiAlias = true
     }
 
-    private val debugPaint = Paint()
+    val extensions = arrayListOf<SeatViewExtension>()
 
     private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
@@ -148,35 +149,10 @@ class SeatView @JvmOverloads constructor(
         canvas.drawColor(config.backgroundColor)
         drawSeat(canvas)
 
-        if (config.centerLineConfig.isActive) {
-            drawCenterLine(this, canvas)
-        }
-
-        if (config.isDebug) {
-            debugPaint.apply {
-                color = Color.BLACK
-                strokeWidth = 3f
-                style = Paint.Style.STROKE
+        extensions.forEach {
+            if(it.isActive()){
+                it.draw(this@SeatView, canvas)
             }
-            canvas.drawRect(windowRectF, debugPaint)
-
-            debugPaint.apply {
-                color = Color.RED
-            }
-            canvas.drawRect(virtualRectF, debugPaint)
-
-            debugPaint.apply {
-                color = Color.BLUE
-                style = Paint.Style.FILL
-            }
-            canvas.drawCircle(virtualRectF.left, virtualRectF.top, 20f, debugPaint)
-            canvas.drawCircle(virtualRectF.right, virtualRectF.bottom, 20f, debugPaint)
-
-            debugPaint.apply {
-                color = Color.BLACK
-                style = Paint.Style.FILL
-            }
-            canvas.drawLine(windowRectF.centerX(), windowRectF.centerY(), windowRectF.centerX(), windowRectF.bottom, debugPaint)
         }
     }
 
@@ -245,8 +221,10 @@ class SeatView @JvmOverloads constructor(
     }
 
 
+    var factor = 0f
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+            factor = detector.scaleFactor
             return true
         }
         override fun onScale(detector: ScaleGestureDetector): Boolean {
@@ -259,9 +237,41 @@ class SeatView @JvmOverloads constructor(
                 seatInlineGap = seatWidth * config.seatInlineGapWidthRatio
                 seatNewlineGap = seatWidth * config.seatNewlineGapWidthRatio
 
+
+                 val rawDifX = (windowRectF.centerX() - virtualRectF.centerX())
+                 val rawDifY = (windowRectF.centerY() - virtualRectF.centerY())
+                 var stepX = (windowRectF.centerX() - virtualRectF.centerX()) * 0.03f
+                 var stepY = (windowRectF.centerY() - virtualRectF.centerY()) * 0.03f
+
+                if(abs(stepX) <= 4){
+                    stepX =  rawDifX
+                }
+
+                if(abs(stepY) <= 4){
+                    stepY = rawDifY
+                }
+
+                var focusX = scaleDetector.focusX
+                var focusY = scaleDetector.focusY
+
+                if(!virtualRectF.contains(windowRectF)){ //Small items
+                    focusX = windowRectF.centerX()
+                    focusY = windowRectF.centerY()
+                }
+
+                Log.e("stepX", stepX.toString())
+                //Log.e("cal", if((detector.scaleFactor - factor) > 0) "zoom-in" else "zoom-out")
+
                 val matrix = Matrix()
-                matrix.setScale(detector.scaleFactor, detector.scaleFactor)
+                matrix.preScale(detector.scaleFactor, detector.scaleFactor, focusX, focusY)
+                if((detector.scaleFactor - factor) < 0){ //zoom out
+                    matrix.postTranslate(stepX, stepY)
+                }
+                //matrix.postTranslate(stepX, stepY)
+                //matrix.setRectToRect(virtualRectF, windowRectF, Matrix.ScaleToFit.CENTER)
                 matrix.mapRect(virtualRectF)
+
+                //scale(virtualRectF, detector.scaleFactor)
                 //matrix.setRectToRect(virtualRectF, windowRectF, Matrix.ScaleToFit.START )
 
 
@@ -283,7 +293,7 @@ class SeatView @JvmOverloads constructor(
         val right = rectCenterX + newWidth / 2F
         val top = rectCenterY - newHeight / 2F
         val bottom = rectCenterY + newHeight / 2F
-        return RectF(left, right, top, bottom)
+        return RectF(left, top, right, bottom)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -358,20 +368,22 @@ class SeatView @JvmOverloads constructor(
             throw Exception("seatDefaultWidth cannot be smaller than seatMinWidth")
         }
 
-        var virtualWidth = columnCount * (seatWidth + seatInlineGap) - seatInlineGap
-        if (virtualWidth < windowRectF.width()) {
-            //virtualWidth = windowRectF.width()
-        }
+        val virtualWidth = columnCount * (seatWidth + seatInlineGap) - seatInlineGap
         val virtualHeight = rowCount * (seatHeight + seatNewlineGap) - seatNewlineGap
 
         val left = (windowRectF.centerX() - virtualWidth / 2)
         val top = (windowRectF.centerY() - virtualHeight / 2)
+
         virtualRectF = RectF(
                 left,
                 top,
                 left + virtualWidth,
                 top + virtualHeight
         )
+
+        extensions.forEach {
+            it.init(this@SeatView)
+        }
     }
 
     /**
@@ -431,7 +443,7 @@ class SeatView @JvmOverloads constructor(
     }
 
     /**
-     * For make sure seatArray contains given rowIndex and columnIndex
+     * Make sure seatArray contains given rowIndex and columnIndex
      */
     private fun isSafeSelect(rowIndex: Int, columnIndex: Int): Boolean {
         return rowIndex >= 0 && columnIndex >= 0 && rowIndex < rowCount && columnIndex < columnCount
@@ -445,19 +457,4 @@ class SeatView @JvmOverloads constructor(
             seatArray[rowIndex][columnIndex]
         } else null
     }
-
-    init {
-        scaleDetector = ScaleGestureDetector(context, ScaleListener())
-    }
-}
-
-fun Float.dp2px(): Float {
-    val scale: Float = Resources.getSystem().displayMetrics.density
-    return (this * scale + 0.5f)
-}
-
-fun Float.round(decimalPlace: Int): Float {
-    var bd = BigDecimal(this.toString())
-    bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP)
-    return bd.toFloat()
 }

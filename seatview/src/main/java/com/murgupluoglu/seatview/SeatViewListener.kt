@@ -9,4 +9,5 @@ interface SeatViewListener {
     fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>)
 
     fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean
+
 }
