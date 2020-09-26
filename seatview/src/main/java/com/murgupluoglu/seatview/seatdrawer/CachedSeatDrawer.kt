@@ -27,8 +27,7 @@ data class CachedSeatDrawer(val context: Context) : SeatDrawer() {
                       seatBean: Seat,
                       seatRectF: RectF,
                       seatWidth: Float,
-                      seatHeight: Float,
-                      calculatedSeatWidth: Float
+                      seatHeight: Float
     ) {
 
         val resourceName: String
@@ -43,7 +42,7 @@ data class CachedSeatDrawer(val context: Context) : SeatDrawer() {
         }
 
         val seatTypeId = seatBean.type.toString() + "_" + seatBean.multipleType + "_" + seatBean.drawableColor + "_" + seatBean.isSelected
-        val drawBitmap = drawableToBitmap(isInEditMode, seatTypeId, calculatedSeatWidth, seatHeight, resourceName, resourceColor)
+        val drawBitmap = drawableToBitmap(isInEditMode, seatTypeId, seatWidth, seatHeight, resourceName, resourceColor)
 
 
         if (drawBitmap != null) canvas.drawBitmap(drawBitmap, null, seatRectF, commonPaint)
@@ -74,6 +73,5 @@ data class CachedSeatDrawer(val context: Context) : SeatDrawer() {
         }
 
         return bitmap
-
     }
 }

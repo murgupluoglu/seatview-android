@@ -9,7 +9,7 @@ import com.murgupluoglu.seatview.SeatView
 *  Copyright © 2020 Mustafa Ürgüplüoğlu. All rights reserved.
 */
 
-class CenterLinesViewExtension(
+class CenterLinesExtension(
         val drawVertical : Boolean = true,
         val drawHorizontal : Boolean = true,
         var _paintStyle: Paint.Style = Paint.Style.STROKE,

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import androidx.core.view.ViewCompat
 import com.murgupluoglu.seatview.extensions.SeatViewExtension
@@ -21,22 +20,24 @@ class SeatView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     //region public
-    var config = SeatViewConfig()
-    var seatArray: Array<Array<Seat>> = arrayOf()
-    val selectedSeats = HashMap<String, Seat>()
-    var rowCount: Int = 0
-    var columnCount: Int = 0
-    lateinit var seatViewListener: SeatViewListener
-    //endregion
-
-    //region private
     lateinit var windowRectF: RectF
         private set
     lateinit var virtualRectF: RectF
         private set
 
-    //private var seatMinHeight: Float = config.seatMinWidth / config.seatWidthHeightRatio
-    //private var seatMaxHeight: Float = config.seatMaxWidth / config.seatWidthHeightRatio
+    var config = SeatViewConfig()
+    var seatArray: Array<Array<Seat>> = arrayOf()
+    val selectedSeats = HashMap<String, Seat>()
+    var rowCount: Int = 0
+    var columnCount: Int = 0
+    var scaleFactorStart = 0f
+    var scaleFactor = 0f
+    lateinit var seatViewListener: SeatViewListener
+    val extensions = arrayListOf<SeatViewExtension>()
+    var seatDrawer : SeatDrawer = CachedSeatDrawer(context)
+    //endregion
+
+    //region private
     private var seatDefaultHeight: Float = config.seatDefaultWidth / config.seatWidthHeightRatio
 
     private var seatWidth = config.seatDefaultWidth
@@ -46,9 +47,6 @@ class SeatView @JvmOverloads constructor(
     private var seatNewlineGap: Float = seatWidth * config.seatNewlineGapWidthRatio
 
     private var scaleDetector = ScaleGestureDetector(context, ScaleListener())
-
-    val extensions = arrayListOf<SeatViewExtension>()
-    var seatDrawer : SeatDrawer = CachedSeatDrawer(context)
 
     private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
@@ -178,9 +176,8 @@ class SeatView @JvmOverloads constructor(
                             isInEditMode = isInEditMode,
                             seatBean = seatBean,
                             seatRectF = seatRectF,
-                            seatWidth = seatWidth,
-                            seatHeight = seatHeight,
-                            calculatedSeatWidth = calculatedSeatWidth
+                            seatWidth = calculatedSeatWidth,
+                            seatHeight = seatHeight
                     )
                 }
             }
@@ -188,15 +185,16 @@ class SeatView @JvmOverloads constructor(
     }
 
 
-    var factor = 0f
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-            factor = detector.scaleFactor
+            scaleFactorStart = detector.scaleFactor
             return true
         }
         override fun onScale(detector: ScaleGestureDetector): Boolean {
 
-            val newSeatWidth = seatWidth * detector.scaleFactor
+            //TODO must be improved
+            scaleFactor = detector.scaleFactor
+            val newSeatWidth = seatWidth * scaleFactor
 
             if(newSeatWidth >= config.seatMinWidth && newSeatWidth <= config.seatMaxWidth){
                 seatWidth = newSeatWidth
@@ -226,19 +224,19 @@ class SeatView @JvmOverloads constructor(
                     focusY = windowRectF.centerY()
                 }
 
-                Log.e("stepX", stepX.toString())
-                //Log.e("cal", if((detector.scaleFactor - factor) > 0) "zoom-in" else "zoom-out")
+                //Log.e("stepX", stepX.toString())
+                //Log.e("cal", if((scaleFactor - factor) > 0) "zoom-in" else "zoom-out")
 
                 val matrix = Matrix()
-                matrix.preScale(detector.scaleFactor, detector.scaleFactor, focusX, focusY)
-                if((detector.scaleFactor - factor) < 0){ //zoom out
+                matrix.preScale(scaleFactor, scaleFactor, focusX, focusY)
+                if((scaleFactor - scaleFactorStart) < 0){ //zoom out
                     matrix.postTranslate(stepX, stepY)
                 }
                 //matrix.postTranslate(stepX, stepY)
                 //matrix.setRectToRect(virtualRectF, windowRectF, Matrix.ScaleToFit.CENTER)
                 matrix.mapRect(virtualRectF)
 
-                //scale(virtualRectF, detector.scaleFactor)
+                //scale(virtualRectF, scaleFactor)
                 //matrix.setRectToRect(virtualRectF, windowRectF, Matrix.ScaleToFit.START )
 
 

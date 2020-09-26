@@ -6,7 +6,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.murgupluoglu.seatview.Seat
 import com.murgupluoglu.seatview.SeatViewListener
-import com.murgupluoglu.seatview.extensions.CenterLinesViewExtension
+import com.murgupluoglu.seatview.extensions.CenterLinesExtension
+import com.murgupluoglu.seatview.extensions.CinemaScreenExtension
 import com.murgupluoglu.seatview.extensions.DebugExtension
 import com.murgupluoglu.seatviewsample.MainActivity.MY_TYPES.DISABLED_PERSON
 import kotlinx.android.synthetic.main.activity_main.*
@@ -28,9 +29,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         seatView.extensions.add(DebugExtension())
-        seatView.extensions.add(CenterLinesViewExtension())
+        seatView.extensions.add(CenterLinesExtension())
+        seatView.extensions.add(CinemaScreenExtension())
 
-        seatView.seatDrawer = NumberSeatDrawer()
+        //seatView.seatDrawer = NumberSeatDrawer()
 
         seatView.seatViewListener = object : SeatViewListener {
 
@@ -47,8 +49,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        generateSample()
-        //defaultSample()
+        //generateSample()
+        defaultSample()
 
         Handler().postDelayed({
             //seatView.selectSeat(9, 9)
@@ -75,20 +77,6 @@ class MainActivity : AppCompatActivity() {
 
 
         seatView.initSeatView(loadSample(seatArray, rowNames, rowArray, rowCount, columnCount), rowCount, columnCount)
-
-        button_test.setOnClickListener {
-
-            val seatName = "A-3"
-            val bean = seatView.findSeatWithName(seatName)
-            if (bean != null) {
-                if (bean.isSelected) {
-                    seatView.releaseSeat(bean.rowIndex, bean.columnIndex)
-                } else {
-                    seatView.selectSeat(bean.rowIndex, bean.columnIndex)
-                }
-            }
-
-        }
     }
 
     private fun loadSample(seatArray: Array<Array<Seat>>, rowNames: HashMap<String, String>, rowArray: JSONArray, rowCount: Int, columnCount: Int): Array<Array<Seat>> {

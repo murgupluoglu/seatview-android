@@ -18,7 +18,6 @@ abstract class SeatDrawer {
             seatBean: Seat,
             seatRectF: RectF,
             seatWidth : Float,
-            seatHeight : Float,
-            calculatedSeatWidth: Float
+            seatHeight : Float
     )
 }
