@@ -26,7 +26,19 @@ class NumberSeatDrawer : SeatDrawer() {
                       seatHeight: Float
     ) {
 
-        val drawable = TextDrawable.builder().buildRound("${seatBean.columnIndex + 1 + (seatBean.rowIndex * seatView.columnCount)}", if(seatBean.isSelected) Color.BLUE else Color.BLACK)
+        val color: Int = when {
+            seatBean.type == Seat.TYPE.UNSELECTABLE -> {
+                Color.BLACK
+            }
+            seatBean.isSelected -> {
+                Color.GREEN
+            }
+            else -> {
+                Color.GRAY
+            }
+        }
+
+        val drawable = TextDrawable.builder().buildRound("${seatBean.columnIndex + 1 + (seatBean.rowIndex * seatView.columnCount)}", color)
         val drawBitmap = Bitmap.createBitmap(seatWidth.toInt(), seatWidth.toInt(), Bitmap.Config.ARGB_8888)
         val c = Canvas(drawBitmap!!)
         drawable.setBounds(0, 0, seatWidth.toInt(), seatWidth.toInt())
