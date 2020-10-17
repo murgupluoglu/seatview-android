@@ -9,7 +9,18 @@ import com.murgupluoglu.seatview.SeatView
 */
 
 abstract class SeatViewExtension {
+    /**
+     * if its true view will be drawn on SeatView
+     */
     abstract fun isActive(): Boolean
+
+    /**
+     * Its will be called before draw and one time
+     */
     abstract fun init(seatView: SeatView)
+
+    /**
+     * Its called with every SeatView.draw()
+     */
     abstract fun draw(seatView: SeatView, canvas: Canvas)
 }

@@ -16,51 +16,88 @@ dependencies {
 ```
 
 # Usage
+
 ```xml
-    <com.murgupluoglu.seatview.SeatView xmlns:seatview="http://schemas.android.com/apk/res-auto"
+    <com.murgupluoglu.seatview.SeatView
         android:id="@+id/seatView"
         android:layout_width="0dp"
-        android:layout_height="300dp"
-        android:layout_margin="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        seatview:centerLineActive="true"
-        seatview:centerLineColor="#e600ff"
-        seatview:centerLineWidth="2.8"
-        seatview:cinemaScreenViewActive="true"
-        seatview:cinemaScreenViewBackgroundColor="#F44336"
-        seatview:cinemaScreenViewSide="top"
-        seatview:cinemaScreenViewText="Cinema Screen"
-        seatview:cinemaScreenViewTextColor="#ffffff"
-        seatview:seatNamesBarActive="true"
-        seatview:seatViewBackgroundColor="#F4F4F4"
-        seatview:thumbSeatViewActive="false"
-        seatview:thumbSeatViewBackgroundColor="#bcb295"
-        seatview:thumbSeatViewPointerColor="#ffee00"
-        seatview:thumbSeatViewPointerWidth="5"
-        seatview:zoomActive="true"
-        seatview:zoomAfterClickActive="false" />
+        app:seatViewBackgroundColor="#F4F4F4" />
 ```
 
 ```kotlin
-    seatView.initSeatView(seatArray, rowCount, columnCount, rowNames)
-
-    seatView.seatClickListener = object : SeatViewListener {
-
-        override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-            Toast.makeText(this@MainActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
-        }
+    seatView.seatViewListener = object : SeatViewListener {
 
         override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-            Toast.makeText(this@MainActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@NumbersActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
+        }
+
+        override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
+            Toast.makeText(this@NumbersActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
         }
 
         override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
             return clickedSeat.type != Seat.TYPE.UNSELECTABLE
         }
+
     }
+    
+    seatView.initSeatView(seatArray, rowCount, columnCount)
 ```
+# Seat Drawer (Optional)
+
+ You can create custom seat drawer otherwise default is CachedSeatDrawer
+ 
+ ```kotlin
+ class CustomSeatDrawer : SeatDrawer() {
+
+    override fun draw(seatView: SeatView,
+                      canvas: Canvas,
+                      isInEditMode: Boolean,
+                      seatBean: Seat,
+                      seatRectF: RectF,
+                      seatWidth: Float,
+                      seatHeight: Float
+    ) {
+
+    }
+}
+ ```
+Add to SeatView
+ ```kotlin
+seatView.seatDrawer = CustomSeatDrawer()
+ ```
+ 
+# Extensions (Optional)
+
+You can create your own extensions like draw center lines or draw some debug points on SeatView
+ ```kotlin
+ class CustomExtension : SeatViewExtension() {
+
+    override fun isActive(): Boolean {
+        return true
+    }
+
+    override fun init(seatView: SeatView) {
+        
+    }
+
+    override fun draw(seatView: SeatView, canvas: Canvas) {
+    
+    }
+
+}
+  ```
+Add to SeatView
+ ```kotlin
+    seatView.extensions.add(DebugExtension())
+    seatView.extensions.add(CenterLinesExtension())
+ ```
 
 # Support
 

@@ -431,16 +431,12 @@ class SeatView @JvmOverloads constructor(
 
     init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.SeatView, 0, 0)
-        //Kotlin 'when' doesn't work inside isInEditMode
+
         if (a.hasValue(R.styleable.SeatView_seatViewBackgroundColor)) config.backgroundColor = Color.parseColor(a.getString(R.styleable.SeatView_seatViewBackgroundColor))
 
         a.recycle()
 
         if (isInEditMode) { //this is just for layout editor preview
-
-            //TODO there is a bug when margin added
-            val widthPixels = Resources.getSystem().displayMetrics.widthPixels
-            val heightPixels = Resources.getSystem().displayMetrics.heightPixels
 
             val sRandom = Random()
 
