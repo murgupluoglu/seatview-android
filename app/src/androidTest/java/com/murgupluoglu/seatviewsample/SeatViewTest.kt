@@ -19,7 +19,7 @@ import org.junit.runner.RunWith
 class SeatViewTest {
 
     @get:Rule
-    val activityTestRule: ActivityTestRule<MockActivity> = ActivityTestRule(MockActivity::class.java)
+    val activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
     @Before
     fun beforeTest() {
