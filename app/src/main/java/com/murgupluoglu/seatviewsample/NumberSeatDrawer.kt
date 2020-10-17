@@ -44,6 +44,5 @@ class NumberSeatDrawer : SeatDrawer() {
         drawable.setBounds(0, 0, seatWidth.toInt(), seatWidth.toInt())
         drawable.draw(c)
         canvas.drawBitmap(drawBitmap, null, seatRectF, commonPaint)
-
     }
 }
