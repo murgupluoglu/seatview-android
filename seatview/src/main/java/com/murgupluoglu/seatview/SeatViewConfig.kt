@@ -18,7 +18,7 @@ data class SeatViewConfig(
 
         var seatMinWidth: Float = 12f.dp2px(),
         var seatMaxWidth: Float = 30f.dp2px(),
-        var seatDefaultWidth:Float = 13f.dp2px(),
+        var seatDefaultWidth: Float = 13f.dp2px(),
         var seatWidthHeightRatio: Float = 1f,
         var seatInlineGapWidthRatio: Float = 0.265f,
         var seatNewlineGapWidthRatio: Float = 0.304f,
@@ -27,9 +27,9 @@ data class SeatViewConfig(
         var backgroundColor: Int = Color.GRAY,
         var isZoomActive: Boolean = true,
 
-)
+        )
 
 fun Float.dp2px(): Float {
-        val scale: Float = Resources.getSystem().displayMetrics.density
-        return (this * scale + 0.5f)
+    val scale: Float = Resources.getSystem().displayMetrics.density
+    return (this * scale + 0.5f)
 }

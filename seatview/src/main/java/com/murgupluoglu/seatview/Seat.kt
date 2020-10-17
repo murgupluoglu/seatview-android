@@ -9,12 +9,13 @@ class Seat {
     var id: String? = null
     var type: Int = TYPE.NOT_EXIST
     var isSelected = false
+
     /**
      * if you have problem with shape,
      * please check SeatViewConfig -> seatWidthHeightRatio
      */
-    var drawableResourceName : String = "null"
-    var selectedDrawableResourceName : String = "null"
+    var drawableResourceName: String = "null"
+    var selectedDrawableResourceName: String = "null"
     var drawableColor = "null"
     var selectedDrawableColor = "null"
     var seatName = "null"

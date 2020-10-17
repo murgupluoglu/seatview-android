@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:background="#BFBBBB">
+    android:background="#BFBBBB"
+    tools:context=".MainActivity">
 
     <com.murgupluoglu.seatview.SeatView
         android:id="@+id/seatView"

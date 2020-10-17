@@ -10,7 +10,7 @@ import com.murgupluoglu.seatview.extensions.DebugExtension
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.HashMap
+import java.util.*
 
 /*
 *  Created by Mustafa Ürgüplüoğlu on 26.09.2020.
@@ -51,7 +51,7 @@ class NumbersActivity : AppCompatActivity() {
         defaultSample()
     }
 
-    private fun defaultSample(){
+    private fun defaultSample() {
         val rowNames: HashMap<String, String> = HashMap()
 
         val sample = JSONObject(loadJSONFromAsset())
@@ -110,25 +110,25 @@ class NumbersActivity : AppCompatActivity() {
                     for (multipleSeatsIndex in 0 until multipleSeatsArray.length()) {
                         val oneSeatIdMultiple = multipleSeatsArray.getString(multipleSeatsIndex)
 
-                        if(oneSeatIdMultiple == seat.seatName){
+                        if (oneSeatIdMultiple == seat.seatName) {
                             when (multipleSeatsIndex) {
                                 0 -> {
                                     seat.multipleType = Seat.MULTIPLETYPE.LEFT
-                                    seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
+                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
                                     seat.selectedDrawableResourceName = "seat_selected_multiple_left"
                                 }
                                 (multipleSeatsArray.length() - 1) -> {
                                     seat.multipleType = Seat.MULTIPLETYPE.RIGHT
-                                    seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
+                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
                                     seat.selectedDrawableResourceName = "seat_selected_multiple_right"
                                 }
                                 else -> {
                                     seat.multipleType = Seat.MULTIPLETYPE.CENTER
-                                    seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
+                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
                                     seat.selectedDrawableResourceName = "seat_selected_multiple_center"
                                 }
                             }
-                            when(seatType){
+                            when (seatType) {
                                 "available" -> {
                                     seat.type = Seat.TYPE.SELECTABLE
                                 }

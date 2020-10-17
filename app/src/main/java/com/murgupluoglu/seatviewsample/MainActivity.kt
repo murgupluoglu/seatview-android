@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         }, 5 * 1000)
     }
 
-    private fun generateSample(){
+    private fun generateSample() {
         val rowCount = 10
         val columnCount = 10
         //val rowNames: HashMap<String, String> = HashMap()
@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         seatView.initSeatView(seatArray, rowCount, columnCount)
     }
 
-    private fun defaultSample(){
+    private fun defaultSample() {
         val rowNames: HashMap<String, String> = HashMap()
 
         val sample = JSONObject(loadJSONFromAsset())
@@ -127,21 +127,21 @@ class MainActivity : AppCompatActivity() {
                     for (multipleSeatsIndex in 0 until multipleSeatsArray.length()) {
                         val oneSeatIdMultiple = multipleSeatsArray.getString(multipleSeatsIndex)
 
-                        if(oneSeatIdMultiple == seat.seatName){
+                        if (oneSeatIdMultiple == seat.seatName) {
                             if (multipleSeatsIndex == 0) {
                                 seat.multipleType = Seat.MULTIPLETYPE.LEFT
-                                seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
+                                seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
                                 seat.selectedDrawableResourceName = "seat_selected_multiple_left"
                             } else if (multipleSeatsIndex == (multipleSeatsArray.length() - 1)) {
                                 seat.multipleType = Seat.MULTIPLETYPE.RIGHT
-                                seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
+                                seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
                                 seat.selectedDrawableResourceName = "seat_selected_multiple_right"
                             } else {
                                 seat.multipleType = Seat.MULTIPLETYPE.CENTER
-                                seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
+                                seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
                                 seat.selectedDrawableResourceName = "seat_selected_multiple_center"
                             }
-                            when(seatType){
+                            when (seatType) {
                                 "available" -> {
                                     seat.type = Seat.TYPE.SELECTABLE
                                 }
@@ -205,13 +205,13 @@ class MainActivity : AppCompatActivity() {
                 seat.columnIndex = columnIndex
                 seat.rowIndex = rowIndex
 
-                if(rowIndex == 0 && columnIndex == 0 || rowIndex == rowCount - 1 && columnIndex == columnCount - 1){
+                if (rowIndex == 0 && columnIndex == 0 || rowIndex == rowCount - 1 && columnIndex == columnCount - 1) {
                     seat.type = DISABLED_PERSON
                     seat.drawableResourceName = "seat_disabledperson"
                     seat.selectedDrawableResourceName = "seat_selected"
                     //seat.drawableColor = "#ff00cc"
                     //seat.selectedDrawableColor = "#000000"
-                }else{
+                } else {
                     seat.type = Seat.TYPE.SELECTABLE
                     seat.drawableResourceName = "seat_available"
                     seat.selectedDrawableResourceName = "seat_selected"

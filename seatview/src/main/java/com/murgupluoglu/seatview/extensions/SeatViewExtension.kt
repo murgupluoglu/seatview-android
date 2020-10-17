@@ -9,7 +9,7 @@ import com.murgupluoglu.seatview.SeatView
 */
 
 abstract class SeatViewExtension {
-    abstract fun isActive() : Boolean
-    abstract fun  init(seatView : SeatView)
-    abstract fun draw(seatView : SeatView, canvas: Canvas)
+    abstract fun isActive(): Boolean
+    abstract fun init(seatView: SeatView)
+    abstract fun draw(seatView: SeatView, canvas: Canvas)
 }

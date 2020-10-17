@@ -22,12 +22,12 @@ class SeatViewTest {
     val activityTestRule: ActivityTestRule<MockActivity> = ActivityTestRule(MockActivity::class.java)
 
     @Before
-    fun beforeTest(){
+    fun beforeTest() {
 
     }
 
     @After
-    fun afterTest(){
+    fun afterTest() {
     }
 
     @Test

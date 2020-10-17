@@ -14,10 +14,10 @@ abstract class SeatDrawer {
     abstract fun draw(
             seatView: SeatView,
             canvas: Canvas,
-            isInEditMode : Boolean,
+            isInEditMode: Boolean,
             seatBean: Seat,
             seatRectF: RectF,
-            seatWidth : Float,
-            seatHeight : Float
+            seatWidth: Float,
+            seatHeight: Float
     )
 }

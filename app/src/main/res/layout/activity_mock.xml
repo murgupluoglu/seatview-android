@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.murgupluoglu.seatview.SeatView xmlns:seatview="http://schemas.android.com/apk/res-auto"
+    <com.murgupluoglu.seatview.SeatView
         android:id="@+id/seatView"
         android:layout_width="match_parent"
         android:layout_height="300dp"

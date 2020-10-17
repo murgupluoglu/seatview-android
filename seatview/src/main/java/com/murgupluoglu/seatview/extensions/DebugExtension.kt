@@ -10,7 +10,7 @@ import com.murgupluoglu.seatview.SeatView
 *  Copyright © 2020 Mustafa Ürgüplüoğlu. All rights reserved.
 */
 
-class DebugExtension : SeatViewExtension(){
+class DebugExtension : SeatViewExtension() {
 
     private val debugPaint = Paint()
 

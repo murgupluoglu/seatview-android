@@ -3,9 +3,16 @@ package com.murgupluoglu.seatview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.RectF
 import android.util.AttributeSet
-import android.view.*
+import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.View
 import androidx.core.view.ViewCompat
 import com.murgupluoglu.seatview.extensions.SeatViewExtension
 import com.murgupluoglu.seatview.seatdrawer.CachedSeatDrawer
@@ -34,7 +41,7 @@ class SeatView @JvmOverloads constructor(
     var scaleFactor = 0f
     lateinit var seatViewListener: SeatViewListener
     val extensions = arrayListOf<SeatViewExtension>()
-    var seatDrawer : SeatDrawer = CachedSeatDrawer(context)
+    var seatDrawer: SeatDrawer = CachedSeatDrawer(context)
     //endregion
 
     //region private
@@ -117,22 +124,21 @@ class SeatView @JvmOverloads constructor(
             }
         }
 
-        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                windowRectF = RectF(
-                        config.leftPadding,
-                        config.topPadding,
-                        measuredWidth.toFloat() - config.rightPadding,
-                        measuredHeight.toFloat() - config.bottomPadding
-                )
-                seatArray = _seatArray
-                rowCount = _rowCount
-                columnCount = _columnCount
-                initParameters()
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-        })
+        seatArray = _seatArray
+        rowCount = _rowCount
+        columnCount = _columnCount
+    }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        Log.e("onSizeChanged", w.toString())
+        windowRectF = RectF(
+                config.leftPadding,
+                config.topPadding,
+                w.toFloat() - config.rightPadding,
+                h.toFloat() - config.bottomPadding
+        )
+        initParameters()
     }
 
 
@@ -143,7 +149,7 @@ class SeatView @JvmOverloads constructor(
         drawSeat(canvas)
 
         extensions.forEach {
-            if(it.isActive()){
+            if (it.isActive()) {
                 it.draw(this@SeatView, canvas)
             }
         }
@@ -190,36 +196,37 @@ class SeatView @JvmOverloads constructor(
             scaleFactorStart = detector.scaleFactor
             return true
         }
+
         override fun onScale(detector: ScaleGestureDetector): Boolean {
 
             //TODO must be improved
             scaleFactor = detector.scaleFactor
             val newSeatWidth = seatWidth * scaleFactor
 
-            if(newSeatWidth >= config.seatMinWidth && newSeatWidth <= config.seatMaxWidth){
+            if (newSeatWidth >= config.seatMinWidth && newSeatWidth <= config.seatMaxWidth) {
                 seatWidth = newSeatWidth
                 seatHeight = seatWidth / config.seatWidthHeightRatio
                 seatInlineGap = seatWidth * config.seatInlineGapWidthRatio
                 seatNewlineGap = seatWidth * config.seatNewlineGapWidthRatio
 
 
-                 val rawDifX = (windowRectF.centerX() - virtualRectF.centerX())
-                 val rawDifY = (windowRectF.centerY() - virtualRectF.centerY())
-                 var stepX = (windowRectF.centerX() - virtualRectF.centerX()) * 0.03f
-                 var stepY = (windowRectF.centerY() - virtualRectF.centerY()) * 0.03f
+                val rawDifX = (windowRectF.centerX() - virtualRectF.centerX())
+                val rawDifY = (windowRectF.centerY() - virtualRectF.centerY())
+                var stepX = (windowRectF.centerX() - virtualRectF.centerX()) * 0.03f
+                var stepY = (windowRectF.centerY() - virtualRectF.centerY()) * 0.03f
 
-                if(abs(stepX) <= 4){
-                    stepX =  rawDifX
+                if (abs(stepX) <= 4) {
+                    stepX = rawDifX
                 }
 
-                if(abs(stepY) <= 4){
+                if (abs(stepY) <= 4) {
                     stepY = rawDifY
                 }
 
                 var focusX = scaleDetector.focusX
                 var focusY = scaleDetector.focusY
 
-                if(!virtualRectF.contains(windowRectF)){ //Small items
+                if (!virtualRectF.contains(windowRectF)) { //Small items
                     focusX = windowRectF.centerX()
                     focusY = windowRectF.centerY()
                 }
@@ -229,7 +236,7 @@ class SeatView @JvmOverloads constructor(
 
                 val matrix = Matrix()
                 matrix.preScale(scaleFactor, scaleFactor, focusX, focusY)
-                if((scaleFactor - scaleFactorStart) < 0){ //zoom out
+                if ((scaleFactor - scaleFactorStart) < 0) { //zoom out
                     matrix.postTranslate(stepX, stepY)
                 }
                 //matrix.postTranslate(stepX, stepY)
@@ -459,11 +466,12 @@ class SeatView @JvmOverloads constructor(
             }
 
             windowRectF = RectF(
-                    0f,
-                    0f,
-                    widthPixels.toFloat(),
-                    heightPixels.toFloat()
+                    config.leftPadding,
+                    config.topPadding,
+                    width.toFloat() - config.rightPadding,
+                    height.toFloat() - config.bottomPadding
             )
+
             seatArray = sSeatArray
             rowCount = sRowCount
             columnCount = sColumnCount
