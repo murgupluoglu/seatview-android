@@ -1,46 +1,74 @@
 package com.murgupluoglu.seatviewsample
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.murgupluoglu.seatview.Seat
+import com.murgupluoglu.seatview.SeatViewListener
+import com.murgupluoglu.seatview.extensions.CenterLinesExtension
+import com.murgupluoglu.seatview.extensions.DebugExtension
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
 
-/**
- * Created by Mustafa Urgupluoglu on 3.04.2019.
- */
+/*
+*  Created by Mustafa Ürgüplüoğlu on 26.09.2020.
+*  Copyright © 2020 Mustafa Ürgüplüoğlu. All rights reserved.
+*/
 
-class MockActivity : AppCompatActivity() {
+class NumbersActivity : AppCompatActivity() {
+
+
+    private val DISABLED_PERSON = 10
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_mock)
+        setContentView(R.layout.activity_main)
 
+        seatView.extensions.add(DebugExtension())
+        seatView.extensions.add(CenterLinesExtension())
+
+        seatView.seatDrawer = NumberSeatDrawer()
+
+        seatView.seatViewListener = object : SeatViewListener {
+
+            override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
+                Toast.makeText(this@NumbersActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
+                Toast.makeText(this@NumbersActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
+                return clickedSeat.type != Seat.TYPE.UNSELECTABLE
+            }
+
+        }
+
+        defaultSample()
+    }
+
+    private fun defaultSample() {
         val rowNames: HashMap<String, String> = HashMap()
 
         val sample = JSONObject(loadJSONFromAsset())
-        val screenName = sample.getJSONObject("screen").getString("name")
         val rowCount = sample.getJSONObject("screen").getInt("totalRow")
         val columnCount = sample.getJSONObject("screen").getInt("totalColumn")
         val seatArray = Array(rowCount) { Array(columnCount) { Seat() } }
         val rowArray = sample.getJSONObject("screen").getJSONArray("rows")
 
 
-        seatView.initSeatView(
-                loadSample(seatArray, rowNames, rowArray, rowCount),
-                rowCount, columnCount, rowNames
-        )
-
-        seatView.config.cinemaScreenViewText = screenName
+        seatView.initSeatView(loadSample(seatArray, rowNames, rowArray, rowCount, columnCount), rowCount, columnCount)
     }
 
-    private fun loadSample(seatArray: Array<Array<Seat>>, rowNames: HashMap<String, String>, rowArray: JSONArray, rowCount: Int): Array<Array<Seat>> {
+    private fun loadSample(seatArray: Array<Array<Seat>>, rowNames: HashMap<String, String>, rowArray: JSONArray, rowCount: Int, columnCount: Int): Array<Array<Seat>> {
 
         val reverseSeats = true
 
-        for (index in 0..(rowArray.length() - 1)) {
+        for (index in 0 until rowArray.length()) {
 
             val oneRow = rowArray.getJSONObject(index)
 
@@ -51,9 +79,9 @@ class MockActivity : AppCompatActivity() {
             if (reverseSeats) {
                 rowIndex = (rowCount - 1) - rowIndex
             }
-            rowNames.put(rowIndex.toString(), rowName)
+            rowNames[rowIndex.toString()] = rowName
 
-            for (columnIndex in 0..(seats.length() - 1)) {
+            for (columnIndex in 0 until seats.length()) {
                 val seatObject = seats.getJSONObject(columnIndex)
 
                 var rowIndexObject = seatObject.getInt("rowIndex")
@@ -74,31 +102,33 @@ class MockActivity : AppCompatActivity() {
                 seat.columnIndex = columnIndexObject
 
                 seat.rowName = rowName
-                //seat.drawableColor = "#4fc3f7"
-                //seat.selectedDrawableColor = "#c700ff"
                 seat.isSelected = seatIsSelected
 
 
                 if (seatObject.has("multiple")) { //check multiple seats exist
                     val multipleSeatsArray = seatObject.getJSONArray("multiple")
-                    for (multipleSeatsIndex in 0..(multipleSeatsArray.length() - 1)) {
+                    for (multipleSeatsIndex in 0 until multipleSeatsArray.length()) {
                         val oneSeatIdMultiple = multipleSeatsArray.getString(multipleSeatsIndex)
 
-                        if(oneSeatIdMultiple == seat.seatName){
-                            if (multipleSeatsIndex == 0) {
-                                seat.multipleType = Seat.MULTIPLETYPE.LEFT
-                                seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
-                                seat.selectedDrawableResourceName = "seat_selected_multiple_left"
-                            } else if (multipleSeatsIndex == (multipleSeatsArray.length() - 1)) {
-                                seat.multipleType = Seat.MULTIPLETYPE.RIGHT
-                                seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
-                                seat.selectedDrawableResourceName = "seat_selected_multiple_right"
-                            } else {
-                                seat.multipleType = Seat.MULTIPLETYPE.CENTER
-                                seat.drawableResourceName = if(seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
-                                seat.selectedDrawableResourceName = "seat_selected_multiple_center"
+                        if (oneSeatIdMultiple == seat.seatName) {
+                            when (multipleSeatsIndex) {
+                                0 -> {
+                                    seat.multipleType = Seat.MULTIPLETYPE.LEFT
+                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
+                                    seat.selectedDrawableResourceName = "seat_selected_multiple_left"
+                                }
+                                (multipleSeatsArray.length() - 1) -> {
+                                    seat.multipleType = Seat.MULTIPLETYPE.RIGHT
+                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
+                                    seat.selectedDrawableResourceName = "seat_selected_multiple_right"
+                                }
+                                else -> {
+                                    seat.multipleType = Seat.MULTIPLETYPE.CENTER
+                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
+                                    seat.selectedDrawableResourceName = "seat_selected_multiple_center"
+                                }
                             }
-                            when(seatType){
+                            when (seatType) {
                                 "available" -> {
                                     seat.type = Seat.TYPE.SELECTABLE
                                 }
@@ -120,7 +150,7 @@ class MockActivity : AppCompatActivity() {
                         }
                         "disabled" -> {
                             seat.drawableResourceName = "seat_disabledperson"
-                            seat.type = 7
+                            seat.type = DISABLED_PERSON
                             seat.selectedDrawableResourceName = "ic_android_24dp"
                         }
                         "notavailable" -> {
@@ -141,10 +171,11 @@ class MockActivity : AppCompatActivity() {
     }
 
     private fun loadJSONFromAsset(): String {
-        val fileName = "test.json"
+        val fileName = "sample.json"
         val jsonString = assets.open(fileName).bufferedReader().use {
             it.readText()
         }
         return jsonString
     }
+
 }
