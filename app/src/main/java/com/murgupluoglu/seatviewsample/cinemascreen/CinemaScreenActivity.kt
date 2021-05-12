@@ -1,4 +1,4 @@
-package com.murgupluoglu.seatviewsample
+package com.murgupluoglu.seatviewsample.cinemascreen
 
 import android.os.Bundle
 import android.widget.Toast
@@ -8,7 +8,8 @@ import com.murgupluoglu.seatview.SeatViewListener
 import com.murgupluoglu.seatview.extensions.CenterLinesExtension
 import com.murgupluoglu.seatview.extensions.CinemaScreenExtension
 import com.murgupluoglu.seatview.extensions.DebugExtension
-import kotlinx.android.synthetic.main.activity_main.*
+import com.murgupluoglu.seatviewsample.R
+import kotlinx.android.synthetic.main.activity_base.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -26,7 +27,7 @@ class CinemaScreenActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_base)
 
         seatView.extensions.add(DebugExtension())
         seatView.extensions.add(CenterLinesExtension())
@@ -37,14 +38,25 @@ class CinemaScreenActivity : AppCompatActivity() {
         seatView.seatViewListener = object : SeatViewListener {
 
             override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-                Toast.makeText(this@CinemaScreenActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@CinemaScreenActivity,
+                    "Selected->" + selectedSeat.seatName,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-                Toast.makeText(this@CinemaScreenActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@CinemaScreenActivity,
+                    "Released->" + releasedSeat.seatName,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
-            override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
+            override fun canSelectSeat(
+                clickedSeat: Seat,
+                selectedSeats: HashMap<String, Seat>
+            ): Boolean {
                 return clickedSeat.type != Seat.TYPE.UNSELECTABLE
             }
 
@@ -63,10 +75,20 @@ class CinemaScreenActivity : AppCompatActivity() {
         val rowArray = sample.getJSONObject("screen").getJSONArray("rows")
 
 
-        seatView.initSeatView(loadSample(seatArray, rowNames, rowArray, rowCount, columnCount), rowCount, columnCount)
+        seatView.initSeatView(
+            loadSample(seatArray, rowNames, rowArray, rowCount, columnCount),
+            rowCount,
+            columnCount
+        )
     }
 
-    private fun loadSample(seatArray: Array<Array<Seat>>, rowNames: HashMap<String, String>, rowArray: JSONArray, rowCount: Int, columnCount: Int): Array<Array<Seat>> {
+    private fun loadSample(
+        seatArray: Array<Array<Seat>>,
+        rowNames: HashMap<String, String>,
+        rowArray: JSONArray,
+        rowCount: Int,
+        columnCount: Int
+    ): Array<Array<Seat>> {
 
         val reverseSeats = true
 
@@ -116,18 +138,24 @@ class CinemaScreenActivity : AppCompatActivity() {
                             when (multipleSeatsIndex) {
                                 0 -> {
                                     seat.multipleType = Seat.MULTIPLETYPE.LEFT
-                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
-                                    seat.selectedDrawableResourceName = "seat_selected_multiple_left"
+                                    seat.drawableResourceName =
+                                        if (seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
+                                    seat.selectedDrawableResourceName =
+                                        "seat_selected_multiple_left"
                                 }
                                 (multipleSeatsArray.length() - 1) -> {
                                     seat.multipleType = Seat.MULTIPLETYPE.RIGHT
-                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
-                                    seat.selectedDrawableResourceName = "seat_selected_multiple_right"
+                                    seat.drawableResourceName =
+                                        if (seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
+                                    seat.selectedDrawableResourceName =
+                                        "seat_selected_multiple_right"
                                 }
                                 else -> {
                                     seat.multipleType = Seat.MULTIPLETYPE.CENTER
-                                    seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
-                                    seat.selectedDrawableResourceName = "seat_selected_multiple_center"
+                                    seat.drawableResourceName =
+                                        if (seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
+                                    seat.selectedDrawableResourceName =
+                                        "seat_selected_multiple_center"
                                 }
                             }
                             when (seatType) {

@@ -41,13 +41,24 @@ class DebugExtension : SeatViewExtension() {
             style = Paint.Style.FILL
         }
         canvas.drawCircle(seatView.virtualRectF.left, seatView.virtualRectF.top, 20f, debugPaint)
-        canvas.drawCircle(seatView.virtualRectF.right, seatView.virtualRectF.bottom, 20f, debugPaint)
+        canvas.drawCircle(
+            seatView.virtualRectF.right,
+            seatView.virtualRectF.bottom,
+            20f,
+            debugPaint
+        )
 
         debugPaint.apply {
             color = Color.BLACK
             style = Paint.Style.FILL
         }
-        canvas.drawLine(seatView.windowRectF.centerX(), seatView.windowRectF.centerY(), seatView.windowRectF.centerX(), seatView.windowRectF.bottom, debugPaint)
+        canvas.drawLine(
+            seatView.windowRectF.centerX(),
+            seatView.windowRectF.centerY(),
+            seatView.windowRectF.centerX(),
+            seatView.windowRectF.bottom,
+            debugPaint
+        )
 
     }
 

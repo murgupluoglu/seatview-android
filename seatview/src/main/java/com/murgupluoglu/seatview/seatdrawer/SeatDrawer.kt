@@ -12,12 +12,12 @@ import com.murgupluoglu.seatview.SeatView
 
 abstract class SeatDrawer {
     abstract fun draw(
-            seatView: SeatView,
-            canvas: Canvas,
-            isInEditMode: Boolean,
-            seatBean: Seat,
-            seatRectF: RectF,
-            seatWidth: Float,
-            seatHeight: Float
+        seatView: SeatView,
+        canvas: Canvas,
+        isInEditMode: Boolean,
+        seatBean: Seat,
+        seatRectF: RectF,
+        seatWidth: Float,
+        seatHeight: Float
     )
 }

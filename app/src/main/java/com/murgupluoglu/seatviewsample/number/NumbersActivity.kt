@@ -1,69 +1,66 @@
-package com.murgupluoglu.seatviewsample
+package com.murgupluoglu.seatviewsample.number
 
 import android.os.Bundle
-import android.os.Handler
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.murgupluoglu.seatview.Seat
 import com.murgupluoglu.seatview.SeatViewListener
 import com.murgupluoglu.seatview.extensions.CenterLinesExtension
-import com.murgupluoglu.seatview.extensions.CinemaScreenExtension
 import com.murgupluoglu.seatview.extensions.DebugExtension
-import com.murgupluoglu.seatviewsample.MainActivity.MY_TYPES.DISABLED_PERSON
-import kotlinx.android.synthetic.main.activity_main.*
+import com.murgupluoglu.seatviewsample.R
+import kotlinx.android.synthetic.main.activity_base.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
 
+/*
+*  Created by Mustafa Ürgüplüoğlu on 26.09.2020.
+*  Copyright © 2020 Mustafa Ürgüplüoğlu. All rights reserved.
+*/
 
-class MainActivity : AppCompatActivity() {
+class NumbersActivity : AppCompatActivity() {
 
 
-    object MY_TYPES {
-        val DISABLED_PERSON = 10
-    }
+    private val DISABLED_PERSON = 10
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_base)
 
         seatView.extensions.add(DebugExtension())
         seatView.extensions.add(CenterLinesExtension())
-        seatView.extensions.add(CinemaScreenExtension())
 
-        //seatView.seatDrawer = NumberSeatDrawer()
+        seatView.seatDrawer = NumberSeatDrawer()
 
         seatView.seatViewListener = object : SeatViewListener {
 
             override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-                Toast.makeText(this@MainActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@NumbersActivity,
+                    "Selected->" + selectedSeat.seatName,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-                Toast.makeText(this@MainActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@NumbersActivity,
+                    "Released->" + releasedSeat.seatName,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
-            override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
+            override fun canSelectSeat(
+                clickedSeat: Seat,
+                selectedSeats: HashMap<String, Seat>
+            ): Boolean {
                 return clickedSeat.type != Seat.TYPE.UNSELECTABLE
             }
+
         }
 
-        //generateSample()
         defaultSample()
-
-        Handler().postDelayed({
-            //seatView.selectSeat(9, 9)
-        }, 5 * 1000)
-    }
-
-    private fun generateSample() {
-        val rowCount = 10
-        val columnCount = 10
-        //val rowNames: HashMap<String, String> = HashMap()
-        val seatArray = generateSample(rowCount, columnCount)
-
-        seatView.initSeatView(seatArray, rowCount, columnCount)
     }
 
     private fun defaultSample() {
@@ -76,10 +73,20 @@ class MainActivity : AppCompatActivity() {
         val rowArray = sample.getJSONObject("screen").getJSONArray("rows")
 
 
-        seatView.initSeatView(loadSample(seatArray, rowNames, rowArray, rowCount, columnCount), rowCount, columnCount)
+        seatView.initSeatView(
+            loadSample(seatArray, rowNames, rowArray, rowCount, columnCount),
+            rowCount,
+            columnCount
+        )
     }
 
-    private fun loadSample(seatArray: Array<Array<Seat>>, rowNames: HashMap<String, String>, rowArray: JSONArray, rowCount: Int, columnCount: Int): Array<Array<Seat>> {
+    private fun loadSample(
+        seatArray: Array<Array<Seat>>,
+        rowNames: HashMap<String, String>,
+        rowArray: JSONArray,
+        rowCount: Int,
+        columnCount: Int
+    ): Array<Array<Seat>> {
 
         val reverseSeats = true
 
@@ -117,8 +124,6 @@ class MainActivity : AppCompatActivity() {
                 seat.columnIndex = columnIndexObject
 
                 seat.rowName = rowName
-                //seat.drawableColor = "#4fc3f7"
-                //seat.selectedDrawableColor = "#c700ff"
                 seat.isSelected = seatIsSelected
 
 
@@ -128,18 +133,28 @@ class MainActivity : AppCompatActivity() {
                         val oneSeatIdMultiple = multipleSeatsArray.getString(multipleSeatsIndex)
 
                         if (oneSeatIdMultiple == seat.seatName) {
-                            if (multipleSeatsIndex == 0) {
-                                seat.multipleType = Seat.MULTIPLETYPE.LEFT
-                                seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
-                                seat.selectedDrawableResourceName = "seat_selected_multiple_left"
-                            } else if (multipleSeatsIndex == (multipleSeatsArray.length() - 1)) {
-                                seat.multipleType = Seat.MULTIPLETYPE.RIGHT
-                                seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
-                                seat.selectedDrawableResourceName = "seat_selected_multiple_right"
-                            } else {
-                                seat.multipleType = Seat.MULTIPLETYPE.CENTER
-                                seat.drawableResourceName = if (seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
-                                seat.selectedDrawableResourceName = "seat_selected_multiple_center"
+                            when (multipleSeatsIndex) {
+                                0 -> {
+                                    seat.multipleType = Seat.MULTIPLETYPE.LEFT
+                                    seat.drawableResourceName =
+                                        if (seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
+                                    seat.selectedDrawableResourceName =
+                                        "seat_selected_multiple_left"
+                                }
+                                (multipleSeatsArray.length() - 1) -> {
+                                    seat.multipleType = Seat.MULTIPLETYPE.RIGHT
+                                    seat.drawableResourceName =
+                                        if (seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
+                                    seat.selectedDrawableResourceName =
+                                        "seat_selected_multiple_right"
+                                }
+                                else -> {
+                                    seat.multipleType = Seat.MULTIPLETYPE.CENTER
+                                    seat.drawableResourceName =
+                                        if (seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
+                                    seat.selectedDrawableResourceName =
+                                        "seat_selected_multiple_center"
+                                }
                             }
                             when (seatType) {
                                 "available" -> {
@@ -163,7 +178,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         "disabled" -> {
                             seat.drawableResourceName = "seat_disabledperson"
-                            seat.type = MY_TYPES.DISABLED_PERSON
+                            seat.type = DISABLED_PERSON
                             seat.selectedDrawableResourceName = "ic_android_24dp"
                         }
                         "notavailable" -> {
@@ -189,39 +204,6 @@ class MainActivity : AppCompatActivity() {
             it.readText()
         }
         return jsonString
-    }
-
-    private fun generateSample(rowCount: Int, columnCount: Int): Array<Array<Seat>> {
-
-        val seatArray = Array(rowCount) { Array(columnCount) { Seat() } }
-
-        seatArray.forEachIndexed { rowIndex, arrayOfSeats ->
-
-            arrayOfSeats.forEachIndexed { columnIndex, seat ->
-
-                seat.id = (rowIndex.toString() + "_" + columnIndex.toString())
-                seat.rowName = "Row: $rowIndex Column: $columnIndex"
-                seat.seatName = "Row: $rowIndex Column: $columnIndex"
-                seat.columnIndex = columnIndex
-                seat.rowIndex = rowIndex
-
-                if (rowIndex == 0 && columnIndex == 0 || rowIndex == rowCount - 1 && columnIndex == columnCount - 1) {
-                    seat.type = DISABLED_PERSON
-                    seat.drawableResourceName = "seat_disabledperson"
-                    seat.selectedDrawableResourceName = "seat_selected"
-                    //seat.drawableColor = "#ff00cc"
-                    //seat.selectedDrawableColor = "#000000"
-                } else {
-                    seat.type = Seat.TYPE.SELECTABLE
-                    seat.drawableResourceName = "seat_available"
-                    seat.selectedDrawableResourceName = "seat_selected"
-                    //seat.drawableColor = "#4fc3f7"
-                    //seat.selectedDrawableColor = "#c700ff"
-                }
-            }
-        }
-
-        return seatArray
     }
 
 }

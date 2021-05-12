@@ -10,14 +10,14 @@ import com.murgupluoglu.seatview.SeatView
 */
 
 class CenterLinesExtension(
-        val drawVertical: Boolean = true,
-        val drawHorizontal: Boolean = true,
-        var _paintStyle: Paint.Style = Paint.Style.STROKE,
-        var _strokeWidth: Float = 3f,
-        var _pathEffect: DashPathEffect? = DashPathEffect(floatArrayOf(5f, 5f, 5f, 5f), 1f),
-        var _isAntiAlias: Boolean = true,
-        @ColorInt
-        var _color: Int = Color.BLUE
+    val drawVertical: Boolean = true,
+    val drawHorizontal: Boolean = true,
+    var _paintStyle: Paint.Style = Paint.Style.STROKE,
+    var _strokeWidth: Float = 3f,
+    var _pathEffect: DashPathEffect? = DashPathEffect(floatArrayOf(5f, 5f, 5f, 5f), 1f),
+    var _isAntiAlias: Boolean = true,
+    @ColorInt
+    var _color: Int = Color.BLUE
 ) : SeatViewExtension() {
 
     override fun isActive(): Boolean {
@@ -47,7 +47,10 @@ class CenterLinesExtension(
             val centerLinePathVertical = Path()
 
             centerLinePathVertical.moveTo(seatView.virtualRectF.centerX(), seatView.windowRectF.top)
-            centerLinePathVertical.lineTo(seatView.virtualRectF.centerX(), seatView.windowRectF.bottom)
+            centerLinePathVertical.lineTo(
+                seatView.virtualRectF.centerX(),
+                seatView.windowRectF.bottom
+            )
 
             canvas.drawPath(centerLinePathVertical, paint)
         }
@@ -55,8 +58,14 @@ class CenterLinesExtension(
         if (drawHorizontal) {
             val centerLinePathHorizontal = Path()
 
-            centerLinePathHorizontal.moveTo(seatView.windowRectF.left, seatView.virtualRectF.centerY())
-            centerLinePathHorizontal.lineTo(seatView.windowRectF.right, seatView.virtualRectF.centerY())
+            centerLinePathHorizontal.moveTo(
+                seatView.windowRectF.left,
+                seatView.virtualRectF.centerY()
+            )
+            centerLinePathHorizontal.lineTo(
+                seatView.windowRectF.right,
+                seatView.virtualRectF.centerY()
+            )
 
             canvas.drawPath(centerLinePathHorizontal, paint)
         }

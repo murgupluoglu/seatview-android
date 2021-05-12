@@ -11,12 +11,12 @@ import com.murgupluoglu.seatview.SeatView
 */
 
 class CinemaScreenExtension(
-        @ColorInt val screenBackgroundColor: Int = Color.RED,
-        val screenPaintStyle: Paint.Style = Paint.Style.FILL,
-        val screenCornerPathEffect: CornerPathEffect = CornerPathEffect(12f),
-        val text: String = "Cinema Screen",
-        @ColorInt val textColor: Int = Color.WHITE,
-        val textAlign: Paint.Align = Paint.Align.CENTER
+    @ColorInt val screenBackgroundColor: Int = Color.RED,
+    val screenPaintStyle: Paint.Style = Paint.Style.FILL,
+    val screenCornerPathEffect: CornerPathEffect = CornerPathEffect(12f),
+    val text: String = "Cinema Screen",
+    @ColorInt val textColor: Int = Color.WHITE,
+    val textAlign: Paint.Align = Paint.Align.CENTER
 ) : SeatViewExtension() {
 
     private val cinemaScreenPaint = Paint()
@@ -54,15 +54,26 @@ class CinemaScreenExtension(
 
         cinemaScreenViewPath.moveTo(centerX, top) //center
         cinemaScreenViewPath.lineTo(centerX - cinemaScreenViewHalfWidth + 10, top) //go left
-        cinemaScreenViewPath.lineTo(centerX - cinemaScreenViewHalfWidth, top - cinemaScreenViewHeight) //go up
-        cinemaScreenViewPath.lineTo(centerX + cinemaScreenViewHalfWidth, top - cinemaScreenViewHeight) // go right
+        cinemaScreenViewPath.lineTo(
+            centerX - cinemaScreenViewHalfWidth,
+            top - cinemaScreenViewHeight
+        ) //go up
+        cinemaScreenViewPath.lineTo(
+            centerX + cinemaScreenViewHalfWidth,
+            top - cinemaScreenViewHeight
+        ) // go right
         cinemaScreenViewPath.lineTo(centerX + cinemaScreenViewHalfWidth - 10, top) //go down
         cinemaScreenViewPath.close()
 
         cinemaScreenTextPaint.textSize = cinemaScreenViewHalfWidth / 7f
 
         canvas.drawPath(cinemaScreenViewPath, cinemaScreenPaint)
-        canvas.drawText(text, centerX, top - (cinemaScreenTextPaint.textSize / 2), cinemaScreenTextPaint)
+        canvas.drawText(
+            text,
+            centerX,
+            top - (cinemaScreenTextPaint.textSize / 2),
+            cinemaScreenTextPaint
+        )
 
     }
 

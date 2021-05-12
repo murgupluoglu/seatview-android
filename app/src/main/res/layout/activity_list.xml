@@ -17,4 +17,10 @@
         android:layout_height="wrap_content"
         android:text="Numbers Sample" />
 
+    <Button
+        android:id="@+id/fromJsonSampleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From Json Sample" />
+
 </LinearLayout>

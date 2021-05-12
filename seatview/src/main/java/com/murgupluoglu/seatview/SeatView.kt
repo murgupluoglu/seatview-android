@@ -2,7 +2,6 @@ package com.murgupluoglu.seatview
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
@@ -23,7 +22,7 @@ import kotlin.math.floor
 
 
 class SeatView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     //region public
@@ -55,36 +54,42 @@ class SeatView @JvmOverloads constructor(
 
     private var scaleDetector = ScaleGestureDetector(context, ScaleListener())
 
-    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-            moveSeatView(distanceX, distanceY)
-            invalidate()
-            return true
-        }
+    private val gestureDetector =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onScroll(
+                e1: MotionEvent,
+                e2: MotionEvent,
+                distanceX: Float,
+                distanceY: Float
+            ): Boolean {
+                moveSeatView(distanceX, distanceY)
+                invalidate()
+                return true
+            }
 
-        override fun onDown(e: MotionEvent): Boolean {
-            return true
-        }
+            override fun onDown(e: MotionEvent): Boolean {
+                return true
+            }
 
-        override fun onSingleTapUp(event: MotionEvent): Boolean {
+            override fun onSingleTapUp(event: MotionEvent): Boolean {
 
-            val clickedSeat = getClickedSeat(event.x, event.y)
-            if (clickedSeat != null) {
-                if (clickedSeat.type != Seat.TYPE.NOT_EXIST) {
-                    if (selectedSeats[clickedSeat.id] != null) {
-                        releaseSeat(clickedSeat.rowIndex, clickedSeat.columnIndex)
-                    } else {
-                        if (seatViewListener.canSelectSeat(clickedSeat, selectedSeats)) {
-                            selectSeat(clickedSeat.rowIndex, clickedSeat.columnIndex)
+                val clickedSeat = getClickedSeat(event.x, event.y)
+                if (clickedSeat != null) {
+                    if (clickedSeat.type != Seat.TYPE.NOT_EXIST) {
+                        if (selectedSeats[clickedSeat.id] != null) {
+                            releaseSeat(clickedSeat.rowIndex, clickedSeat.columnIndex)
+                        } else {
+                            if (seatViewListener.canSelectSeat(clickedSeat, selectedSeats)) {
+                                selectSeat(clickedSeat.rowIndex, clickedSeat.columnIndex)
+                            }
                         }
                     }
+                } else {
+                    // Clicked blank area
                 }
-            } else {
-                // Clicked blank area
+                return super.onSingleTapUp(event)
             }
-            return super.onSingleTapUp(event)
-        }
-    })
+        })
     //endregion private
 
     fun addSeatsInsideSelected(clickedSeat: Seat) {
@@ -95,7 +100,7 @@ class SeatView @JvmOverloads constructor(
             clickedSeat.multipleSeats.forEach {
                 val oneSeatInsideMultipe = findSeatWithName(it)
                 oneSeatInsideMultipe!!.isSelected = true
-                selectedSeats.put(oneSeatInsideMultipe.id!!, oneSeatInsideMultipe)
+                selectedSeats[oneSeatInsideMultipe.id!!] = oneSeatInsideMultipe
             }
         }
     }
@@ -133,10 +138,10 @@ class SeatView @JvmOverloads constructor(
         super.onSizeChanged(w, h, oldw, oldh)
         Log.e("onSizeChanged", w.toString())
         windowRectF = RectF(
-                config.leftPadding,
-                config.topPadding,
-                w.toFloat() - config.rightPadding,
-                h.toFloat() - config.bottomPadding
+            config.leftPadding,
+            config.topPadding,
+            w.toFloat() - config.rightPadding,
+            h.toFloat() - config.bottomPadding
         )
         initParameters()
     }
@@ -163,7 +168,8 @@ class SeatView @JvmOverloads constructor(
                 val seatRectF = getSeatRect(rowIndex, columnIndex, seatBean)
 
                 if (seatRectF.right < windowRectF.left || seatRectF.left > windowRectF.right
-                        || seatRectF.top > windowRectF.bottom || seatRectF.bottom < windowRectF.top) {
+                    || seatRectF.top > windowRectF.bottom || seatRectF.bottom < windowRectF.top
+                ) {
                     continue
                 }
 
@@ -177,13 +183,13 @@ class SeatView @JvmOverloads constructor(
                     }
 
                     seatDrawer.draw(
-                            seatView = this@SeatView,
-                            canvas = canvas,
-                            isInEditMode = isInEditMode,
-                            seatBean = seatBean,
-                            seatRectF = seatRectF,
-                            seatWidth = calculatedSeatWidth,
-                            seatHeight = seatHeight
+                        seatView = this@SeatView,
+                        canvas = canvas,
+                        isInEditMode = isInEditMode,
+                        seatBean = seatBean,
+                        seatRectF = seatRectF,
+                        seatWidth = calculatedSeatWidth,
+                        seatHeight = seatHeight
                     )
                 }
             }
@@ -308,16 +314,18 @@ class SeatView @JvmOverloads constructor(
         return null
     }
 
-    fun selectSeat(rowIndex: Int, columnIndex: Int) {
+    fun selectSeat(rowIndex: Int, columnIndex: Int): Seat? {
         if (isSafeSelect(rowIndex, columnIndex)) {
             val seatBean = seatArray[rowIndex][columnIndex]
-            if (!seatBean.isSelected) {
+            if (seatBean.type != Seat.TYPE.NOT_EXIST && !seatBean.isSelected) {
                 seatBean.isSelected = true
                 addSeatsInsideSelected(seatBean)
                 seatViewListener.seatSelected(seatBean, selectedSeats)
                 invalidate()
+                return seatBean
             }
         }
+        return null
     }
 
     fun releaseSeat(rowIndex: Int, columnIndex: Int) {
@@ -346,10 +354,10 @@ class SeatView @JvmOverloads constructor(
         val top = (windowRectF.centerY() - virtualHeight / 2)
 
         virtualRectF = RectF(
-                left,
-                top,
-                left + virtualWidth,
-                top + virtualHeight
+            left,
+            top,
+            left + virtualWidth,
+            top + virtualHeight
         )
 
         extensions.forEach {
@@ -390,7 +398,8 @@ class SeatView @JvmOverloads constructor(
         val virtualX = touchX - virtualRectF.left
         val virtualY = touchY - virtualRectF.top
         if (virtualX < 0 || virtualX > virtualRectF.width()
-                || virtualY < 0 || virtualY > virtualRectF.height()) {
+            || virtualY < 0 || virtualY > virtualRectF.height()
+        ) {
             //Touch outside of the seats
             return null
         } else {
@@ -402,7 +411,8 @@ class SeatView @JvmOverloads constructor(
 
     private fun moveSeatView(moveX: Float, moveY: Float) {
 
-        val possibleRectF = RectF(virtualRectF.left, virtualRectF.top, virtualRectF.right, virtualRectF.bottom)
+        val possibleRectF =
+            RectF(virtualRectF.left, virtualRectF.top, virtualRectF.right, virtualRectF.bottom)
         possibleRectF.offset(-moveX, 0f)
         if (possibleRectF.left <= windowRectF.left && possibleRectF.right >= windowRectF.right) {
             virtualRectF.offset(-moveX, 0f)
@@ -432,7 +442,8 @@ class SeatView @JvmOverloads constructor(
     init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.SeatView, 0, 0)
 
-        if (a.hasValue(R.styleable.SeatView_seatViewBackgroundColor)) config.backgroundColor = Color.parseColor(a.getString(R.styleable.SeatView_seatViewBackgroundColor))
+        if (a.hasValue(R.styleable.SeatView_seatViewBackgroundColor)) config.backgroundColor =
+            Color.parseColor(a.getString(R.styleable.SeatView_seatViewBackgroundColor))
 
         a.recycle()
 
@@ -462,10 +473,10 @@ class SeatView @JvmOverloads constructor(
             }
 
             windowRectF = RectF(
-                    config.leftPadding,
-                    config.topPadding,
-                    width.toFloat() - config.rightPadding,
-                    height.toFloat() - config.bottomPadding
+                config.leftPadding,
+                config.topPadding,
+                width.toFloat() - config.rightPadding,
+                height.toFloat() - config.bottomPadding
             )
 
             seatArray = sSeatArray

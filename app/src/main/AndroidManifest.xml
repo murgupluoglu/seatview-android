@@ -23,9 +23,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity" />
-        <activity android:name=".CinemaScreenActivity" />
-        <activity android:name=".NumbersActivity" />
+        <activity android:name=".json.JsonSampleActivity" />
+        <activity android:name=".cinemascreen.CinemaScreenActivity" />
+        <activity android:name=".number.NumbersActivity" />
     </application>
 
 </manifest>

@@ -21,13 +21,14 @@ data class CachedSeatDrawer(val context: Context) : SeatDrawer() {
         isAntiAlias = true
     }
 
-    override fun draw(seatView: SeatView,
-                      canvas: Canvas,
-                      isInEditMode: Boolean,
-                      seatBean: Seat,
-                      seatRectF: RectF,
-                      seatWidth: Float,
-                      seatHeight: Float
+    override fun draw(
+        seatView: SeatView,
+        canvas: Canvas,
+        isInEditMode: Boolean,
+        seatBean: Seat,
+        seatRectF: RectF,
+        seatWidth: Float,
+        seatHeight: Float
     ) {
 
         val resourceName: String
@@ -41,15 +42,30 @@ data class CachedSeatDrawer(val context: Context) : SeatDrawer() {
             resourceColor = seatBean.drawableColor
         }
 
-        val seatTypeId = seatBean.type.toString() + "_" + seatBean.multipleType + "_" + seatBean.drawableColor + "_" + seatBean.isSelected
-        val drawBitmap = drawableToBitmap(isInEditMode, seatTypeId, seatWidth, seatHeight, resourceName, resourceColor)
+        val seatTypeId =
+            seatBean.type.toString() + "_" + seatBean.multipleType + "_" + seatBean.drawableColor + "_" + seatBean.isSelected
+        val drawBitmap = drawableToBitmap(
+            isInEditMode,
+            seatTypeId,
+            seatWidth,
+            seatHeight,
+            resourceName,
+            resourceColor
+        )
 
 
         if (drawBitmap != null) canvas.drawBitmap(drawBitmap, null, seatRectF, commonPaint)
 
     }
 
-    private fun drawableToBitmap(isInEditMode: Boolean, seatType: String, width: Float, height: Float, resourceName: String, color: String): Bitmap? {
+    private fun drawableToBitmap(
+        isInEditMode: Boolean,
+        seatType: String,
+        width: Float,
+        height: Float,
+        resourceName: String,
+        color: String
+    ): Bitmap? {
 
         var bitmap: Bitmap? = null
         if (bitmaps[seatType] != null) {
@@ -57,7 +73,8 @@ data class CachedSeatDrawer(val context: Context) : SeatDrawer() {
         } else {
             var drawable = ContextCompat.getDrawable(context, R.drawable.square_seat)
             if (!isInEditMode && resourceName != "null") {
-                val resId = context.resources.getIdentifier(resourceName, "drawable", context.packageName)
+                val resId =
+                    context.resources.getIdentifier(resourceName, "drawable", context.packageName)
                 drawable = ContextCompat.getDrawable(context, resId)
             }
             if (drawable != null) {

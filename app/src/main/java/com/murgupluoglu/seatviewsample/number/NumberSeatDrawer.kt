@@ -1,4 +1,4 @@
-package com.murgupluoglu.seatviewsample
+package com.murgupluoglu.seatviewsample.number
 
 import android.graphics.*
 import com.amulyakhare.textdrawable.TextDrawable
@@ -17,13 +17,14 @@ class NumberSeatDrawer : SeatDrawer() {
         isAntiAlias = true
     }
 
-    override fun draw(seatView: SeatView,
-                      canvas: Canvas,
-                      isInEditMode: Boolean,
-                      seatBean: Seat,
-                      seatRectF: RectF,
-                      seatWidth: Float,
-                      seatHeight: Float
+    override fun draw(
+        seatView: SeatView,
+        canvas: Canvas,
+        isInEditMode: Boolean,
+        seatBean: Seat,
+        seatRectF: RectF,
+        seatWidth: Float,
+        seatHeight: Float
     ) {
 
         val color: Int = when {
@@ -38,8 +39,12 @@ class NumberSeatDrawer : SeatDrawer() {
             }
         }
 
-        val drawable = TextDrawable.builder().buildRound("${seatBean.columnIndex + 1 + (seatBean.rowIndex * seatView.columnCount)}", color)
-        val drawBitmap = Bitmap.createBitmap(seatWidth.toInt(), seatWidth.toInt(), Bitmap.Config.ARGB_8888)
+        val drawable = TextDrawable.builder().buildRound(
+            "${seatBean.columnIndex + 1 + (seatBean.rowIndex * seatView.columnCount)}",
+            color
+        )
+        val drawBitmap =
+            Bitmap.createBitmap(seatWidth.toInt(), seatWidth.toInt(), Bitmap.Config.ARGB_8888)
         val c = Canvas(drawBitmap!!)
         drawable.setBounds(0, 0, seatWidth.toInt(), seatWidth.toInt())
         drawable.draw(c)
