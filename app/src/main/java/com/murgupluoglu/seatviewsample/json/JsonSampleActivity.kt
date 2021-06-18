@@ -6,13 +6,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.blankj.utilcode.util.LogUtils
 import com.murgupluoglu.seatview.Seat
+import com.murgupluoglu.seatview.SeatView
 import com.murgupluoglu.seatview.SeatViewListener
 import com.murgupluoglu.seatview.extensions.CenterLinesExtension
 import com.murgupluoglu.seatview.extensions.CinemaScreenExtension
 import com.murgupluoglu.seatview.extensions.DebugExtension
 import com.murgupluoglu.seatviewsample.R
 import com.murgupluoglu.seatviewsample.json.JsonSampleActivity.MY_TYPES.DISABLED_PERSON
-import kotlinx.android.synthetic.main.activity_base.*
+import com.murgupluoglu.seatviewsample.utils.loadJSONFromAsset
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -23,6 +24,10 @@ class JsonSampleActivity : AppCompatActivity() {
 
     object MY_TYPES {
         val DISABLED_PERSON = 10
+    }
+
+    private val seatView : SeatView by lazy{
+        findViewById(R.id.seatView)
     }
 
 
@@ -84,7 +89,7 @@ class JsonSampleActivity : AppCompatActivity() {
     private fun defaultSample() {
         val rowNames: HashMap<String, String> = HashMap()
 
-        val sample = JSONObject(loadJSONFromAsset())
+        val sample = JSONObject(loadJSONFromAsset("sample.json"))
         val rowCount = sample.getJSONObject("screen").getInt("totalRow")
         val columnCount = sample.getJSONObject("screen").getInt("totalColumn")
         val seatArray = Array(rowCount) { Array(columnCount) { Seat() } }
@@ -209,14 +214,6 @@ class JsonSampleActivity : AppCompatActivity() {
 
 
         return seatArray
-    }
-
-    private fun loadJSONFromAsset(): String {
-        val fileName = "sample.json"
-        val jsonString = assets.open(fileName).bufferedReader().use {
-            it.readText()
-        }
-        return jsonString
     }
 
     private fun generateSample(rowCount: Int, columnCount: Int): Array<Array<Seat>> {

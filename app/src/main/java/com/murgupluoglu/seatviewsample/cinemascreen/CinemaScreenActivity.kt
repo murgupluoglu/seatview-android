@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.murgupluoglu.seatview.Seat
+import com.murgupluoglu.seatview.SeatView
 import com.murgupluoglu.seatview.SeatViewListener
 import com.murgupluoglu.seatview.extensions.CenterLinesExtension
 import com.murgupluoglu.seatview.extensions.CinemaScreenExtension
 import com.murgupluoglu.seatview.extensions.DebugExtension
 import com.murgupluoglu.seatviewsample.R
-import kotlinx.android.synthetic.main.activity_base.*
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -23,6 +23,10 @@ class CinemaScreenActivity : AppCompatActivity() {
 
 
     private val DISABLED_PERSON = 10
+
+    private val seatView : SeatView by lazy{
+        findViewById(R.id.seatView)
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

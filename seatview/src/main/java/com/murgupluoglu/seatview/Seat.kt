@@ -1,5 +1,7 @@
 package com.murgupluoglu.seatview
 
+import java.lang.StringBuilder
+
 
 class Seat {
 
@@ -39,6 +41,14 @@ class Seat {
         const val LEFT = 0
         const val CENTER = 1
         const val RIGHT = 2
+    }
+
+    override fun toString(): String {
+        val b = StringBuilder()
+        b.append("id:$id").append("\n")
+        b.append("name:${seatName}").append("\n")
+        b.append("${rowIndex}:${columnIndex}").append("\n")
+        return b.toString()
     }
 
 }
