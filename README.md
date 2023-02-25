@@ -1,7 +1,9 @@
-![](github/sample.gif)
+<img src="github/sample.gif" width="300" height="666"/>
 
 # Installation
+
 [![](https://jitpack.io/v/murgupluoglu/seatview-android.svg)](https://jitpack.io/#murgupluoglu/seatview-android)
+
 ```gradle
 allprojects {
     repositories {
@@ -19,52 +21,45 @@ dependencies {
 
 ```xml
     <com.murgupluoglu.seatview.SeatView
-        android:id="@+id/seatView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:seatViewBackgroundColor="#F4F4F4" />
+    android:id="@+id/seatView"
+    android:layout_width="0dp"
+    android:layout_height="0dp" />
 ```
 
 ```kotlin
-    seatView.seatViewListener = object : SeatViewListener {
-
-        override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-            Toast.makeText(this@NumbersActivity, "Selected->" + selectedSeat.seatName, Toast.LENGTH_SHORT).show()
-        }
-
-        override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
-            Toast.makeText(this@NumbersActivity, "Released->" + releasedSeat.seatName, Toast.LENGTH_SHORT).show()
-        }
-
-        override fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean {
-            return clickedSeat.type != Seat.TYPE.UNSELECTABLE
-        }
-
+   seatView.seatViewListener = object : SeatViewListener<BasicSeat> {
+    override fun seatReleased(releasedSeat: BasicSeat, selectedSeats: HashSet<String>) {
     }
+
+    override fun seatSelected(selectedSeat: BasicSeat, selectedSeats: HashSet<String>) {
+    }
+
+    override fun canSelectSeat(
+        clickedSeat: BasicSeat,
+        selectedSeats: HashSet<String>
+    ): Boolean {
+        return true
+    }
+   }
     
-    seatView.initSeatView(seatArray, rowCount, columnCount)
+    seatView.initSeatView(seatList)
 ```
 # Seat Drawer (Optional)
 
- You can create custom seat drawer otherwise default is CachedSeatDrawer
- 
+You can create a custom seat drawer otherwise the default is NumberSeatDrawer
+
  ```kotlin
- class CustomSeatDrawer : SeatDrawer() {
+class CustomSeatDrawer : SeatDrawer {
 
-    override fun draw(seatView: SeatView,
-                      canvas: Canvas,
-                      isInEditMode: Boolean,
-                      seatBean: Seat,
-                      seatRectF: RectF,
-                      seatWidth: Float,
-                      seatHeight: Float
+    override fun <SEAT : Seat> draw(
+        context: Context,
+        params: SeatViewParameters,
+        config: SeatViewConfig,
+        canvas: Canvas,
+        seat: SEAT,
+        seatRectF: RectF,
+        isSelected: Boolean
     ) {
-
     }
 }
  ```
@@ -72,23 +67,26 @@ Add to SeatView
  ```kotlin
 seatView.seatDrawer = CustomSeatDrawer()
  ```
- 
+
 # Extensions (Optional)
 
-You can create your own extensions like draw center lines or draw some debug points on SeatView
+You can create your own extensions like drawing center lines or drawing some debug points on SeatView
+
  ```kotlin
- class CustomExtension : SeatViewExtension() {
+class CustomExtension : SeatViewExtension() {
 
     override fun isActive(): Boolean {
         return true
     }
 
-    override fun init(seatView: SeatView) {
-        
+    override fun init(params: SeatViewParameters, config: SeatViewConfig) {
     }
 
-    override fun draw(seatView: SeatView, canvas: Canvas) {
-    
+    override fun draw(
+        canvas: Canvas,
+        params: SeatViewParameters,
+        config: SeatViewConfig
+    ) {
     }
 
 }
@@ -101,4 +99,4 @@ Add to SeatView
 
 # Support
 
-If you like project please give a star.
+If you like the project please give it a star.

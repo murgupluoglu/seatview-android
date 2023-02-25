@@ -3,16 +3,13 @@ package com.murgupluoglu.seatviewsample.cinemascreen
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.murgupluoglu.seatview.Seat
+import com.murgupluoglu.seatview.SeatView
 import com.murgupluoglu.seatview.SeatViewListener
 import com.murgupluoglu.seatview.extensions.CenterLinesExtension
-import com.murgupluoglu.seatview.extensions.CinemaScreenExtension
 import com.murgupluoglu.seatview.extensions.DebugExtension
 import com.murgupluoglu.seatviewsample.R
-import kotlinx.android.synthetic.main.activity_base.*
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.*
 
 /*
 *  Created by Mustafa Ürgüplüoğlu on 26.09.2020.
@@ -22,42 +19,45 @@ import java.util.*
 class CinemaScreenActivity : AppCompatActivity() {
 
 
-    private val DISABLED_PERSON = 10
+    private lateinit var seatView: SeatView<MultipleSeat>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base)
 
-        seatView.extensions.add(DebugExtension())
-        seatView.extensions.add(CenterLinesExtension())
-        seatView.extensions.add(CinemaScreenExtension())
+        seatView = findViewById(R.id.seatView)
 
-        //seatView.seatDrawer = NumberSeatDrawer()
+        seatView.extensions.apply {
+            add(DebugExtension())
+            add(CenterLinesExtension())
+            add(CinemaScreenExtension())
+        }
 
-        seatView.seatViewListener = object : SeatViewListener {
+        seatView.seatDrawer = CachedMultipleSeatDrawer()
 
-            override fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
+        seatView.seatViewListener = object : SeatViewListener<MultipleSeat> {
+            override fun seatReleased(releasedSeat: MultipleSeat, selectedSeats: HashSet<String>) {
                 Toast.makeText(
                     this@CinemaScreenActivity,
-                    "Selected->" + selectedSeat.seatName,
+                    "Released->" + releasedSeat.id(),
                     Toast.LENGTH_SHORT
                 ).show()
             }
 
-            override fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>) {
+            override fun seatSelected(selectedSeat: MultipleSeat, selectedSeats: HashSet<String>) {
                 Toast.makeText(
                     this@CinemaScreenActivity,
-                    "Released->" + releasedSeat.seatName,
+                    "Selected->" + selectedSeat.id(),
                     Toast.LENGTH_SHORT
                 ).show()
             }
 
             override fun canSelectSeat(
-                clickedSeat: Seat,
-                selectedSeats: HashMap<String, Seat>
+                clickedSeat: MultipleSeat,
+                selectedSeats: HashSet<String>
             ): Boolean {
-                return clickedSeat.type != Seat.TYPE.UNSELECTABLE
+                return clickedSeat.canSelect()
             }
 
         }
@@ -71,24 +71,21 @@ class CinemaScreenActivity : AppCompatActivity() {
         val sample = JSONObject(loadJSONFromAsset())
         val rowCount = sample.getJSONObject("screen").getInt("totalRow")
         val columnCount = sample.getJSONObject("screen").getInt("totalColumn")
-        val seatArray = Array(rowCount) { Array(columnCount) { Seat() } }
+        val seatArray = Array(rowCount) { Array(columnCount) { MultipleSeat() } }
         val rowArray = sample.getJSONObject("screen").getJSONArray("rows")
 
 
         seatView.initSeatView(
-            loadSample(seatArray, rowNames, rowArray, rowCount, columnCount),
-            rowCount,
-            columnCount
+            loadSample(seatArray, rowNames, rowArray, rowCount)
         )
     }
 
     private fun loadSample(
-        seatArray: Array<Array<Seat>>,
+        seatArray: Array<Array<MultipleSeat>>,
         rowNames: HashMap<String, String>,
         rowArray: JSONArray,
-        rowCount: Int,
-        columnCount: Int
-    ): Array<Array<Seat>> {
+        rowCount: Int
+    ): Array<Array<MultipleSeat>> {
 
         val reverseSeats = true
 
@@ -119,15 +116,10 @@ class CinemaScreenActivity : AppCompatActivity() {
                     rowIndexObject = (rowCount - 1) - rowIndexObject
                 }
 
-                val seat = Seat()
-                seat.id = seatNameObject
+                val seat = MultipleSeat()
+                seat.seatId = seatNameObject
                 seat.seatName = seatNameObject
-                seat.rowIndex = rowIndexObject
-                seat.columnIndex = columnIndexObject
-
-                seat.rowName = rowName
-                seat.isSelected = seatIsSelected
-
+                seat.isPreSelectedSeat = seatIsSelected
 
                 if (seatObject.has("multiple")) { //check multiple seats exist
                     val multipleSeatsArray = seatObject.getJSONArray("multiple")
@@ -137,33 +129,24 @@ class CinemaScreenActivity : AppCompatActivity() {
                         if (oneSeatIdMultiple == seat.seatName) {
                             when (multipleSeatsIndex) {
                                 0 -> {
-                                    seat.multipleType = Seat.MULTIPLETYPE.LEFT
-                                    seat.drawableResourceName =
-                                        if (seatType == "available") "seat_available_multiple_left" else "seat_notavailable_multiple_left"
-                                    seat.selectedDrawableResourceName =
-                                        "seat_selected_multiple_left"
+                                    seat.multipleType = MultipleSeat.MULTIPLETYPE.LEFT
                                 }
+
                                 (multipleSeatsArray.length() - 1) -> {
-                                    seat.multipleType = Seat.MULTIPLETYPE.RIGHT
-                                    seat.drawableResourceName =
-                                        if (seatType == "available") "seat_available_multiple_right" else "seat_notavailable_multiple_right"
-                                    seat.selectedDrawableResourceName =
-                                        "seat_selected_multiple_right"
+                                    seat.multipleType = MultipleSeat.MULTIPLETYPE.RIGHT
                                 }
+
                                 else -> {
-                                    seat.multipleType = Seat.MULTIPLETYPE.CENTER
-                                    seat.drawableResourceName =
-                                        if (seatType == "available") "seat_available_multiple_center" else "seat_notavailable_multiple_center"
-                                    seat.selectedDrawableResourceName =
-                                        "seat_selected_multiple_center"
+                                    seat.multipleType = MultipleSeat.MULTIPLETYPE.CENTER
                                 }
                             }
                             when (seatType) {
                                 "available" -> {
-                                    seat.type = Seat.TYPE.SELECTABLE
+                                    seat.type = MultipleSeat.TYPE.SELECTABLE
                                 }
+
                                 "notavailable" -> {
-                                    seat.type = Seat.TYPE.UNSELECTABLE
+                                    seat.type = MultipleSeat.TYPE.UNSELECTABLE
                                 }
                             }
                         }
@@ -171,22 +154,18 @@ class CinemaScreenActivity : AppCompatActivity() {
                     }
                 }
 
-                if (seat.multipleType == Seat.MULTIPLETYPE.NOTMULTIPLE) {
-                    seat.selectedDrawableResourceName = "seat_selected"
+                if (seat.multipleType == MultipleSeat.MULTIPLETYPE.NOTMULTIPLE) {
                     when (seatType) {
                         "available" -> {
-                            seat.drawableResourceName = "seat_available"
-                            seat.type = Seat.TYPE.SELECTABLE
+                            seat.type = MultipleSeat.TYPE.SELECTABLE
                         }
+
                         "disabled" -> {
-                            seat.drawableResourceName = "seat_disabledperson"
-                            seat.type = DISABLED_PERSON
-                            seat.selectedDrawableResourceName = "ic_android_24dp"
+                            seat.type = MultipleSeat.TYPE.DISABLED_PERSON
                         }
+
                         "notavailable" -> {
-                            seat.drawableResourceName = "seat_notavailable"
-                            seat.type = Seat.TYPE.UNSELECTABLE
-                            seat.selectedDrawableResourceName = "ic_android_24dp"
+                            seat.type = MultipleSeat.TYPE.UNSELECTABLE
                         }
                     }
                 }

@@ -1,23 +1,25 @@
 package com.murgupluoglu.seatview.seatdrawer
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.RectF
 import com.murgupluoglu.seatview.Seat
-import com.murgupluoglu.seatview.SeatView
+import com.murgupluoglu.seatview.SeatViewConfig
+import com.murgupluoglu.seatview.SeatViewParameters
 
 /*
 *  Created by Mustafa Ürgüplüoğlu on 25.09.2020.
 *  Copyright © 2020 Mustafa Ürgüplüoğlu. All rights reserved.
 */
 
-abstract class SeatDrawer {
-    abstract fun draw(
-        seatView: SeatView,
+interface SeatDrawer {
+    fun <SEAT : Seat> draw(
+        context: Context,
+        params: SeatViewParameters,
+        config: SeatViewConfig,
         canvas: Canvas,
-        isInEditMode: Boolean,
-        seatBean: Seat,
+        seat: SEAT,
         seatRectF: RectF,
-        seatWidth: Float,
-        seatHeight: Float
+        isSelected: Boolean
     )
 }

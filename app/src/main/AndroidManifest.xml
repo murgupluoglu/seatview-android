@@ -15,6 +15,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".ListActivity"
+            android:exported="true"
             android:screenOrientation="fullSensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,9 +24,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".json.JsonSampleActivity" />
+        <activity android:name=".basic.BasicActivity" />
         <activity android:name=".cinemascreen.CinemaScreenActivity" />
-        <activity android:name=".number.NumbersActivity" />
     </application>
 
 </manifest>

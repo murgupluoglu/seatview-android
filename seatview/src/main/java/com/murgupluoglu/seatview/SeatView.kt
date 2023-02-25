@@ -3,56 +3,39 @@ package com.murgupluoglu.seatview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.view.ViewCompat
 import com.murgupluoglu.seatview.extensions.SeatViewExtension
-import com.murgupluoglu.seatview.seatdrawer.CachedSeatDrawer
+import com.murgupluoglu.seatview.seatdrawer.NumberSeatDrawer
 import com.murgupluoglu.seatview.seatdrawer.SeatDrawer
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.floor
 
 
-class SeatView @JvmOverloads constructor(
+class SeatView<SEAT : Seat> @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     //region public
-    lateinit var windowRectF: RectF
-        private set
-    lateinit var virtualRectF: RectF
-        private set
-
     var config = SeatViewConfig()
-    var seatArray: Array<Array<Seat>> = arrayOf()
-    val selectedSeats = HashMap<String, Seat>()
-    var rowCount: Int = 0
-    var columnCount: Int = 0
-    var scaleFactorStart = 0f
-    var scaleFactor = 0f
-    lateinit var seatViewListener: SeatViewListener
+    val parameters = SeatViewParameters()
+    lateinit var seats: Array<Array<SEAT>>
+    lateinit var seatViewListener: SeatViewListener<SEAT>
+
     val extensions = arrayListOf<SeatViewExtension>()
-    var seatDrawer: SeatDrawer = CachedSeatDrawer(context)
+    var seatDrawer: SeatDrawer = NumberSeatDrawer()
+    val selectedSeats = HashSet<String>()
     //endregion
 
     //region private
-    private var seatDefaultHeight: Float = config.seatDefaultWidth / config.seatWidthHeightRatio
-
-    private var seatWidth = config.seatDefaultWidth
-    private var seatHeight = seatDefaultHeight
-
-    private var seatInlineGap: Float = seatWidth * config.seatInlineGapWidthRatio
-    private var seatNewlineGap: Float = seatWidth * config.seatNewlineGapWidthRatio
-
-    private var scaleDetector = ScaleGestureDetector(context, ScaleListener())
+    private val scaleDetector = ScaleGestureDetector(context, ScaleListener())
 
     private val gestureDetector =
         GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
@@ -73,14 +56,20 @@ class SeatView @JvmOverloads constructor(
 
             override fun onSingleTapUp(event: MotionEvent): Boolean {
 
-                val clickedSeat = getClickedSeat(event.x, event.y)
+                val pairXYAndSeat = getClickedSeatAndXY(event.x, event.y)
+                val pairXY = pairXYAndSeat?.first
+                val clickedSeat = pairXYAndSeat?.second
                 if (clickedSeat != null) {
-                    if (clickedSeat.type != Seat.TYPE.NOT_EXIST) {
-                        if (selectedSeats[clickedSeat.id] != null) {
-                            releaseSeat(clickedSeat.rowIndex, clickedSeat.columnIndex)
+                    if (clickedSeat.isVisible()) {
+                        if (selectedSeats.contains(clickedSeat.id())) {
+                            releaseSeat(pairXY!!.first, pairXY.second)
                         } else {
-                            if (seatViewListener.canSelectSeat(clickedSeat, selectedSeats)) {
-                                selectSeat(clickedSeat.rowIndex, clickedSeat.columnIndex)
+                            if (seatViewListener.canSelectSeat(
+                                    clickedSeat,
+                                    selectedSeats
+                                )
+                            ) {
+                                selectSeat(pairXY!!.first, pairXY.second)
                             }
                         }
                     }
@@ -92,52 +81,44 @@ class SeatView @JvmOverloads constructor(
         })
     //endregion private
 
-    fun addSeatsInsideSelected(clickedSeat: Seat) {
-        if (clickedSeat.multipleType == Seat.MULTIPLETYPE.NOTMULTIPLE) {
-            clickedSeat.isSelected = true
-            selectedSeats[clickedSeat.id!!] = clickedSeat
-        } else {
-            clickedSeat.multipleSeats.forEach {
-                val oneSeatInsideMultipe = findSeatWithName(it)
-                oneSeatInsideMultipe!!.isSelected = true
-                selectedSeats[oneSeatInsideMultipe.id!!] = oneSeatInsideMultipe
-            }
-        }
-    }
+    fun initSeatView(
+        list: Array<Array<SEAT>>,
+        optionalConfig: SeatViewConfig = SeatViewConfig()
+    ) {
 
-    fun removeSeatsInsideSelected(clickedSeat: Seat) {
-        if (clickedSeat.multipleType == Seat.MULTIPLETYPE.NOTMULTIPLE) {
-            clickedSeat.isSelected = false
-            selectedSeats.remove(clickedSeat.id)
-        } else {
-            clickedSeat.multipleSeats.forEach {
-                val oneSeatInsideMultipe = findSeatWithName(it)
-                oneSeatInsideMultipe!!.isSelected = false
-                selectedSeats.remove(oneSeatInsideMultipe.id)
-            }
+        config = optionalConfig
+        seats = list
+        parameters.apply {
+            xSize = list.first().size
+            ySize = list.size
         }
-    }
-
-    fun initSeatView(_seatArray: Array<Array<Seat>>, _rowCount: Int, _columnCount: Int) {
 
         //add all pre-selected seat inside selectedSeats
-        seatArray.forEachIndexed { rowIndex, arrayOfSeats ->
-            arrayOfSeats.forEachIndexed { columnIndex, seat ->
-                if (seat.isSelected) {
-                    addSeatsInsideSelected(seat)
+        seats.forEachIndexed { _, arrayOfSeats ->
+            arrayOfSeats.forEachIndexed { _, seat ->
+                if (seat.isPreSelected()) {
+                    selectedSeats.add(seat.id())
+                    seat.allConnectedSeatIds().forEach { seatId ->
+                        selectedSeats.add(seatId)
+                    }
                 }
             }
         }
 
-        seatArray = _seatArray
-        rowCount = _rowCount
-        columnCount = _columnCount
+        parameters.apply {
+            seatDefaultHeight = config.seatDefaultWidth / config.seatWidthHeightRatio
+
+            seatWidth = config.seatDefaultWidth
+            seatHeight = seatDefaultHeight
+
+            seatInlineGap = seatWidth * config.seatInlineGapWidthRatio
+            seatNewlineGap = seatWidth * config.seatNewlineGapWidthRatio
+        }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        Log.e("onSizeChanged", w.toString())
-        windowRectF = RectF(
+        parameters.windowRectF = RectF(
             config.leftPadding,
             config.topPadding,
             w.toFloat() - config.rightPadding,
@@ -151,127 +132,101 @@ class SeatView @JvmOverloads constructor(
         super.onDraw(canvas)
 
         canvas.drawColor(config.backgroundColor)
-        drawSeat(canvas)
+        drawSeats(canvas)
 
         extensions.forEach {
             if (it.isActive()) {
-                it.draw(this@SeatView, canvas)
+                it.draw(canvas, parameters, config)
             }
         }
     }
 
-    private fun drawSeat(canvas: Canvas) {
-        for (rowIndex in 0 until rowCount) {
-            for (columnIndex in 0 until columnCount) {
-                val seatBean = seatArray[rowIndex][columnIndex]
+    private fun drawSeats(canvas: Canvas) {
+        parameters.apply {
+            for (yIndex in 0 until ySize) {
+                for (xIndex in 0 until xSize) {
+                    val seatBean = getSeat(xIndex, yIndex)
 
-                val seatRectF = getSeatRect(rowIndex, columnIndex, seatBean)
+                    val seatRectF = getSeatRect(xIndex, yIndex, seatBean)
 
-                if (seatRectF.right < windowRectF.left || seatRectF.left > windowRectF.right
-                    || seatRectF.top > windowRectF.bottom || seatRectF.bottom < windowRectF.top
-                ) {
-                    continue
-                }
-
-                if (seatBean.type != Seat.TYPE.NOT_EXIST) {
-
-                    var calculatedSeatWidth = seatWidth
-                    if (seatBean.multipleType == Seat.MULTIPLETYPE.LEFT || seatBean.multipleType == Seat.MULTIPLETYPE.RIGHT) {
-                        calculatedSeatWidth = seatWidth + seatInlineGap / 2
-                    } else if (seatBean.multipleType == Seat.MULTIPLETYPE.CENTER) {
-                        calculatedSeatWidth = seatWidth + seatInlineGap
+                    if (seatRectF.right < windowRectF.left || seatRectF.left > windowRectF.right
+                        || seatRectF.top > windowRectF.bottom || seatRectF.bottom < windowRectF.top
+                    ) {
+                        continue
                     }
 
-                    seatDrawer.draw(
-                        seatView = this@SeatView,
-                        canvas = canvas,
-                        isInEditMode = isInEditMode,
-                        seatBean = seatBean,
-                        seatRectF = seatRectF,
-                        seatWidth = calculatedSeatWidth,
-                        seatHeight = seatHeight
-                    )
+                    if (seatBean.isVisible()) {
+                        seatDrawer.draw(
+                            context = context,
+                            params = parameters,
+                            config = config,
+                            canvas = canvas,
+                            seat = seatBean,
+                            seatRectF = seatRectF,
+                            isSelected = selectedSeats.contains(seatBean.id())
+                        )
+                    }
                 }
             }
         }
+
     }
 
 
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-            scaleFactorStart = detector.scaleFactor
+            parameters.scaleFactorStart = detector.scaleFactor
             return true
         }
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
+            parameters.apply {
+                //TODO must be improved
+                scaleFactor = detector.scaleFactor
+                val newSeatWidth = seatWidth * scaleFactor
 
-            //TODO must be improved
-            scaleFactor = detector.scaleFactor
-            val newSeatWidth = seatWidth * scaleFactor
-
-            if (newSeatWidth >= config.seatMinWidth && newSeatWidth <= config.seatMaxWidth) {
-                seatWidth = newSeatWidth
-                seatHeight = seatWidth / config.seatWidthHeightRatio
-                seatInlineGap = seatWidth * config.seatInlineGapWidthRatio
-                seatNewlineGap = seatWidth * config.seatNewlineGapWidthRatio
+                if (newSeatWidth >= config.seatMinWidth && newSeatWidth <= config.seatMaxWidth) {
+                    seatWidth = newSeatWidth
+                    seatHeight = seatWidth / config.seatWidthHeightRatio
+                    seatInlineGap = seatWidth * config.seatInlineGapWidthRatio
+                    seatNewlineGap = seatWidth * config.seatNewlineGapWidthRatio
 
 
-                val rawDifX = (windowRectF.centerX() - virtualRectF.centerX())
-                val rawDifY = (windowRectF.centerY() - virtualRectF.centerY())
-                var stepX = (windowRectF.centerX() - virtualRectF.centerX()) * 0.03f
-                var stepY = (windowRectF.centerY() - virtualRectF.centerY()) * 0.03f
+                    val rawDifX = (windowRectF.centerX() - virtualRectF.centerX())
+                    val rawDifY = (windowRectF.centerY() - virtualRectF.centerY())
+                    var stepX = (windowRectF.centerX() - virtualRectF.centerX()) * 0.03f
+                    var stepY = (windowRectF.centerY() - virtualRectF.centerY()) * 0.03f
 
-                if (abs(stepX) <= 4) {
-                    stepX = rawDifX
+                    if (abs(stepX) <= 4) {
+                        stepX = rawDifX
+                    }
+
+                    if (abs(stepY) <= 4) {
+                        stepY = rawDifY
+                    }
+
+                    var focusX = scaleDetector.focusX
+                    var focusY = scaleDetector.focusY
+
+                    if (!virtualRectF.contains(windowRectF)) { //Small items
+                        focusX = windowRectF.centerX()
+                        focusY = windowRectF.centerY()
+                    }
+
+                    val matrix = Matrix()
+                    matrix.preScale(scaleFactor, scaleFactor, focusX, focusY)
+                    if ((scaleFactor - scaleFactorStart) < 0) { //zoom out
+                        matrix.postTranslate(stepX, stepY)
+                    }
+                    matrix.mapRect(virtualRectF)
+
+                    ViewCompat.postInvalidateOnAnimation(this@SeatView)
                 }
-
-                if (abs(stepY) <= 4) {
-                    stepY = rawDifY
-                }
-
-                var focusX = scaleDetector.focusX
-                var focusY = scaleDetector.focusY
-
-                if (!virtualRectF.contains(windowRectF)) { //Small items
-                    focusX = windowRectF.centerX()
-                    focusY = windowRectF.centerY()
-                }
-
-                //Log.e("stepX", stepX.toString())
-                //Log.e("cal", if((scaleFactor - factor) > 0) "zoom-in" else "zoom-out")
-
-                val matrix = Matrix()
-                matrix.preScale(scaleFactor, scaleFactor, focusX, focusY)
-                if ((scaleFactor - scaleFactorStart) < 0) { //zoom out
-                    matrix.postTranslate(stepX, stepY)
-                }
-                //matrix.postTranslate(stepX, stepY)
-                //matrix.setRectToRect(virtualRectF, windowRectF, Matrix.ScaleToFit.CENTER)
-                matrix.mapRect(virtualRectF)
-
-                //scale(virtualRectF, scaleFactor)
-                //matrix.setRectToRect(virtualRectF, windowRectF, Matrix.ScaleToFit.START )
-
-
-                ViewCompat.postInvalidateOnAnimation(this@SeatView)
             }
+
 
             return true
         }
-    }
-
-    private fun RectF.scale(factor: Float): RectF {
-        val oldWidth = width()
-        val oldHeight = height()
-        val rectCenterX = left + oldWidth / 2F
-        val rectCenterY = top + oldHeight / 2F
-        val newWidth = oldWidth * factor
-        val newHeight = oldHeight * factor
-        val left = rectCenterX - newWidth / 2F
-        val right = rectCenterX + newWidth / 2F
-        val top = rectCenterY - newHeight / 2F
-        val bottom = rectCenterY + newHeight / 2F
-        return RectF(left, top, right, bottom)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -284,42 +239,116 @@ class SeatView @JvmOverloads constructor(
         return true
     }
 
-    fun checkColumnIsEmpty(rowIndex: Int): Boolean {
-        var isEmpty = true
+    private fun initParameters() {
 
-        for (columnIndex in 0 until columnCount) {
-            val seatBean = seatArray[rowIndex][columnIndex]
-            if (seatBean.type != Seat.TYPE.NOT_EXIST) {
-                isEmpty = false
-            }
+        if (config.seatDefaultWidth < config.seatMinWidth) {
+            throw RuntimeException("seatDefaultWidth cannot be smaller than seatMinWidth")
         }
 
-        return isEmpty
+        parameters.apply {
+
+            val virtualWidth = (xSize * (seatWidth + seatInlineGap)) - seatInlineGap
+            val virtualHeight = (ySize * (seatHeight + seatNewlineGap)) - seatNewlineGap
+
+            val left = (windowRectF.centerX() - (virtualWidth / 2))
+            val top = (windowRectF.centerY() - (virtualHeight / 2))
+
+            virtualRectF = RectF(
+                left,
+                top,
+                left + virtualWidth,
+                top + virtualHeight
+            )
+        }
+
+        extensions.forEach {
+            it.init(parameters, config)
+        }
     }
 
-    fun isSeatSelected(rowIndex: Int, columnIndex: Int): Boolean {
-        return if (isSafeSelect(rowIndex, columnIndex)) {
-            seatArray[rowIndex][columnIndex].isSelected
-        } else false
+    /**
+     * Get seat rect for given xIndex and yIndex
+     * Seat rect is used for drawing seats at the correct place
+     */
+    private fun getSeatRect(xIndex: Int, yIndex: Int, seatBean: Seat): RectF {
+        parameters.apply {
+            val left =
+                virtualRectF.left + (xIndex * (seatWidth + seatInlineGap)) + seatBean.leftRectAddition(
+                    seatInlineGap
+                )
+            val right = left + seatWidth + seatBean.rightRectAddition(seatInlineGap)
+
+            val top = virtualRectF.top + (yIndex * (seatHeight + seatNewlineGap))
+            val bottom = top + seatHeight
+
+            return RectF(left, top, right, bottom)
+        }
     }
 
-    fun findSeatWithName(seatName: String): Seat? {
-        seatArray.forEach { arrayOfRows ->
-            arrayOfRows.forEach { seat ->
-                if (seatName == seat.seatName) {
-                    return seat
-                }
-            }
+    private fun getClickedSeatAndXY(touchX: Float, touchY: Float): Pair<Pair<Int, Int>, SEAT?>? {
+        val pairXY = getClickedSafeXY(touchX, touchY)
+        pairXY?.let {
+            return Pair(pairXY, getSeat(it.first, it.second))
         }
         return null
     }
 
-    fun selectSeat(rowIndex: Int, columnIndex: Int): Seat? {
-        if (isSafeSelect(rowIndex, columnIndex)) {
-            val seatBean = seatArray[rowIndex][columnIndex]
-            if (seatBean.type != Seat.TYPE.NOT_EXIST && !seatBean.isSelected) {
-                seatBean.isSelected = true
-                addSeatsInsideSelected(seatBean)
+    private fun getClickedSafeXY(touchX: Float, touchY: Float): Pair<Int, Int>? {
+        parameters.apply {
+            val virtualX = touchX - virtualRectF.left
+            val virtualY = touchY - virtualRectF.top
+            return if (virtualX < 0 || virtualX > virtualRectF.width()
+                || virtualY < 0 || virtualY > virtualRectF.height()
+            ) {
+                //Touch outside of the seats
+                null
+            } else {
+                val xIndex = floor((virtualX / (seatWidth + seatInlineGap)).toDouble()).toInt()
+                val yIndex = floor((virtualY / (seatHeight + seatNewlineGap)).toDouble()).toInt()
+                if (isSafeSelect(xIndex, yIndex)) Pair(xIndex, yIndex) else null
+            }
+        }
+    }
+
+    private fun moveSeatView(moveX: Float, moveY: Float) {
+        parameters.apply {
+            val possibleRectF = RectF(
+                virtualRectF.left,
+                virtualRectF.top,
+                virtualRectF.right,
+                virtualRectF.bottom
+            )
+            possibleRectF.offset(-moveX, 0f)
+            if (possibleRectF.left <= windowRectF.left && possibleRectF.right >= windowRectF.right) {
+                virtualRectF.offset(-moveX, 0f)
+            }
+            possibleRectF.offset(0f, -moveY)
+            if (possibleRectF.top <= windowRectF.top && possibleRectF.bottom >= windowRectF.bottom) {
+                virtualRectF.offset(0f, -moveY)
+            }
+        }
+    }
+
+    /**
+     * Make sure the seat list contains the given x and y
+     */
+    fun isSafeSelect(xIndex: Int, yIndex: Int): Boolean {
+        return (0 until parameters.xSize).contains(xIndex)
+                && (0 until parameters.ySize).contains(yIndex)
+    }
+
+    fun getSeat(xIndex: Int, yIndex: Int): SEAT {
+        return seats[yIndex][xIndex]
+    }
+
+    fun selectSeat(xIndex: Int, yIndex: Int): SEAT? {
+        if (isSafeSelect(xIndex, yIndex)) {
+            val seatBean = getSeat(xIndex, yIndex)
+            if (selectedSeats.contains(seatBean.id()).not()) {
+                selectedSeats.add(seatBean.id())
+                seatBean.allConnectedSeatIds().forEach {
+                    selectedSeats.add(it)
+                }
                 seatViewListener.seatSelected(seatBean, selectedSeats)
                 invalidate()
                 return seatBean
@@ -328,161 +357,28 @@ class SeatView @JvmOverloads constructor(
         return null
     }
 
-    fun releaseSeat(rowIndex: Int, columnIndex: Int) {
-        if (isSafeSelect(rowIndex, columnIndex)) {
-            val seatBean = seatArray[rowIndex][columnIndex]
-            if (seatBean.isSelected) {
-                seatBean.isSelected = false
-                removeSeatsInsideSelected(seatBean)
-                seatViewListener.seatReleased(seatBean, selectedSeats)
-                invalidate()
-            }
-        }
-    }
-
-
-    fun initParameters() {
-
-        if (config.seatDefaultWidth < config.seatMinWidth) {
-            throw Exception("seatDefaultWidth cannot be smaller than seatMinWidth")
-        }
-
-        val virtualWidth = columnCount * (seatWidth + seatInlineGap) - seatInlineGap
-        val virtualHeight = rowCount * (seatHeight + seatNewlineGap) - seatNewlineGap
-
-        val left = (windowRectF.centerX() - virtualWidth / 2)
-        val top = (windowRectF.centerY() - virtualHeight / 2)
-
-        virtualRectF = RectF(
-            left,
-            top,
-            left + virtualWidth,
-            top + virtualHeight
-        )
-
-        extensions.forEach {
-            it.init(this@SeatView)
-        }
-    }
-
-    /**
-     * Get seat rect for given rowIndex and columnIndex
-     * Seat rect is using for draw seat at correct place
-     */
-    private fun getSeatRect(rowIndex: Int, columnIndex: Int, seatBean: Seat): RectF {
-
-        var left = virtualRectF.left + (columnIndex * (seatInlineGap + seatWidth))
-        var right = left + seatWidth
-
-        when (seatBean.multipleType) {
-            Seat.MULTIPLETYPE.LEFT -> {
-                right += seatInlineGap / 2
-            }
-            Seat.MULTIPLETYPE.RIGHT -> {
-                left -= seatInlineGap / 2
-            }
-            Seat.MULTIPLETYPE.CENTER -> {
-                left -= seatInlineGap / 2
-                right += seatInlineGap / 2
-            }
-        }
-
-        val top = virtualRectF.top + (rowIndex * (seatNewlineGap + seatHeight))
-        val bottom = top + seatHeight
-
-        return RectF(left, top, right, bottom)
-    }
-
-    private fun getClickedSeat(touchX: Float, touchY: Float): Seat? {
-
-        val virtualX = touchX - virtualRectF.left
-        val virtualY = touchY - virtualRectF.top
-        if (virtualX < 0 || virtualX > virtualRectF.width()
-            || virtualY < 0 || virtualY > virtualRectF.height()
-        ) {
-            //Touch outside of the seats
-            return null
-        } else {
-            val columnIndex = floor((virtualX / (seatWidth + seatInlineGap)).toDouble()).toInt()
-            val rowIndex = floor((virtualY / (seatHeight + seatNewlineGap)).toDouble()).toInt()
-            return if (isSafeSelect(rowIndex, columnIndex)) getSeat(rowIndex, columnIndex) else null
-        }
-    }
-
-    private fun moveSeatView(moveX: Float, moveY: Float) {
-
-        val possibleRectF =
-            RectF(virtualRectF.left, virtualRectF.top, virtualRectF.right, virtualRectF.bottom)
-        possibleRectF.offset(-moveX, 0f)
-        if (possibleRectF.left <= windowRectF.left && possibleRectF.right >= windowRectF.right) {
-            virtualRectF.offset(-moveX, 0f)
-        }
-        possibleRectF.offset(0f, -moveY)
-        if (possibleRectF.top <= windowRectF.top && possibleRectF.bottom >= windowRectF.bottom) {
-            virtualRectF.offset(0f, -moveY)
-        }
-    }
-
-    /**
-     * Make sure seatArray contains given rowIndex and columnIndex
-     */
-    private fun isSafeSelect(rowIndex: Int, columnIndex: Int): Boolean {
-        return rowIndex >= 0 && columnIndex >= 0 && rowIndex < rowCount && columnIndex < columnCount
-    }
-
-    /**
-     * Get seat from given rowIndex and columnIndex
-     */
-    fun getSeat(rowIndex: Int, columnIndex: Int): Seat? {
-        return if (isSafeSelect(rowIndex, columnIndex)) {
-            seatArray[rowIndex][columnIndex]
-        } else null
-    }
-
-    init {
-        val a = context.obtainStyledAttributes(attrs, R.styleable.SeatView, 0, 0)
-
-        if (a.hasValue(R.styleable.SeatView_seatViewBackgroundColor)) config.backgroundColor =
-            Color.parseColor(a.getString(R.styleable.SeatView_seatViewBackgroundColor))
-
-        a.recycle()
-
-        if (isInEditMode) { //this is just for layout editor preview
-
-            val sRandom = Random()
-
-            val sRowCount = 10
-            val sColumnCount = 10
-            val sSeatArray = Array(sRowCount) { Array(sColumnCount) { Seat() } }
-
-            sSeatArray.forEachIndexed { rowIndex, arrayOfSeats ->
-                arrayOfSeats.forEachIndexed { columnIndex, seat ->
-                    val rInteger = sRandom.nextInt(3)
-                    if (rowIndex != 3) {
-                        if (rInteger == Seat.TYPE.UNSELECTABLE) {
-                            seat.type = Seat.TYPE.UNSELECTABLE
-                            seat.drawableColor = "#e57373"
-                        } else {
-                            seat.type = Seat.TYPE.SELECTABLE
-                            seat.drawableColor = "#64b5f6"
-                        }
-                    } else {
-                        seat.type = Seat.TYPE.NOT_EXIST
-                    }
+    fun getSeatPosition(id: String): Pair<Int, Int>? {
+        seats.forEachIndexed { y, seatsX ->
+            seatsX.forEachIndexed { x, seat ->
+                if (seat.id() == id) {
+                    return Pair(x, y)
                 }
             }
+        }
+        return null
+    }
 
-            windowRectF = RectF(
-                config.leftPadding,
-                config.topPadding,
-                width.toFloat() - config.rightPadding,
-                height.toFloat() - config.bottomPadding
-            )
-
-            seatArray = sSeatArray
-            rowCount = sRowCount
-            columnCount = sColumnCount
-            initParameters()
+    fun releaseSeat(xIndex: Int, yIndex: Int) {
+        if (isSafeSelect(xIndex, yIndex)) {
+            val seat = getSeat(xIndex, yIndex)
+            if (selectedSeats.contains(seat.id())) {
+                selectedSeats.remove(seat.id())
+                seat.allConnectedSeatIds().forEach { seatId ->
+                    selectedSeats.remove(seatId)
+                }
+                seatViewListener.seatReleased(seat, selectedSeats)
+                invalidate()
+            }
         }
     }
 

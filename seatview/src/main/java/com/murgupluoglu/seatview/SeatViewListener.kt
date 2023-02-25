@@ -1,13 +1,11 @@
 package com.murgupluoglu.seatview
 
-import java.util.*
+interface SeatViewListener<SEAT> {
 
-interface SeatViewListener {
+    fun seatReleased(releasedSeat: SEAT, selectedSeats: HashSet<String>)
 
-    fun seatReleased(releasedSeat: Seat, selectedSeats: HashMap<String, Seat>)
+    fun seatSelected(selectedSeat: SEAT, selectedSeats: HashSet<String>)
 
-    fun seatSelected(selectedSeat: Seat, selectedSeats: HashMap<String, Seat>)
-
-    fun canSelectSeat(clickedSeat: Seat, selectedSeats: HashMap<String, Seat>): Boolean
+    fun canSelectSeat(clickedSeat: SEAT, selectedSeats: HashSet<String>): Boolean
 
 }

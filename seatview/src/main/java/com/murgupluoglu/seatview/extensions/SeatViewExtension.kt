@@ -1,7 +1,8 @@
 package com.murgupluoglu.seatview.extensions
 
 import android.graphics.Canvas
-import com.murgupluoglu.seatview.SeatView
+import com.murgupluoglu.seatview.SeatViewConfig
+import com.murgupluoglu.seatview.SeatViewParameters
 
 /*
 *  Created by Mustafa Ürgüplüoğlu on 25.09.2020.
@@ -10,17 +11,17 @@ import com.murgupluoglu.seatview.SeatView
 
 abstract class SeatViewExtension {
     /**
-     * if its true view will be drawn on SeatView
+     * if it's true, the view will be drawn on SeatView
      */
     abstract fun isActive(): Boolean
 
     /**
-     * Its will be called before draw and one time
+     * It will be called before the draw and one time
      */
-    abstract fun init(seatView: SeatView)
+    abstract fun init(params: SeatViewParameters, config: SeatViewConfig)
 
     /**
-     * Its called with every SeatView.draw()
+     * It's called with every SeatView#draw
      */
-    abstract fun draw(seatView: SeatView, canvas: Canvas)
+    abstract fun draw(canvas: Canvas, params: SeatViewParameters, config: SeatViewConfig)
 }

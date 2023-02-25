@@ -10,7 +10,6 @@ import androidx.annotation.ColorInt
 */
 
 data class SeatViewConfig(
-
     var leftPadding: Float = 50f,
     var rightPadding: Float = 50f,
     var topPadding: Float = 50f,
@@ -24,10 +23,9 @@ data class SeatViewConfig(
     var seatNewlineGapWidthRatio: Float = 0.304f,
 
     @ColorInt
-    var backgroundColor: Int = Color.GRAY,
+    var backgroundColor: Int = Color.WHITE,
     var isZoomActive: Boolean = true,
-
-    )
+)
 
 fun Float.dp2px(): Float {
     val scale: Float = Resources.getSystem().displayMetrics.density

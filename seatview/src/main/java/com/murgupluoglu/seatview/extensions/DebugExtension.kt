@@ -3,7 +3,8 @@ package com.murgupluoglu.seatview.extensions
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import com.murgupluoglu.seatview.SeatView
+import com.murgupluoglu.seatview.SeatViewConfig
+import com.murgupluoglu.seatview.SeatViewParameters
 
 /*
 *  Created by Mustafa Ürgüplüoğlu on 25.09.2020.
@@ -18,47 +19,58 @@ class DebugExtension : SeatViewExtension() {
         return true
     }
 
-    override fun init(seatView: SeatView) {
+    override fun init(params: SeatViewParameters, config: SeatViewConfig) {
 
     }
 
-    override fun draw(seatView: SeatView, canvas: Canvas) {
+    override fun draw(
+        canvas: Canvas,
+        params: SeatViewParameters,
+        config: SeatViewConfig
+    ) {
+        params.apply {
+            debugPaint.apply {
+                color = Color.BLACK
+                strokeWidth = 3f
+                style = Paint.Style.STROKE
+            }
+            canvas.drawRect(windowRectF, debugPaint)
 
-        debugPaint.apply {
-            color = Color.BLACK
-            strokeWidth = 3f
-            style = Paint.Style.STROKE
-        }
-        canvas.drawRect(seatView.windowRectF, debugPaint)
+            debugPaint.apply {
+                color = Color.RED
+            }
+            canvas.drawRect(virtualRectF, debugPaint)
 
-        debugPaint.apply {
-            color = Color.RED
-        }
-        canvas.drawRect(seatView.virtualRectF, debugPaint)
+            debugPaint.apply {
+                color = Color.BLUE
+                style = Paint.Style.FILL
+            }
+            canvas.drawCircle(
+                virtualRectF.left,
+                virtualRectF.top,
+                20f,
+                debugPaint
+            )
+            canvas.drawCircle(
+                virtualRectF.right,
+                virtualRectF.bottom,
+                20f,
+                debugPaint
+            )
 
-        debugPaint.apply {
-            color = Color.BLUE
-            style = Paint.Style.FILL
+            debugPaint.apply {
+                color = Color.BLACK
+                style = Paint.Style.FILL
+            }
+            canvas.drawLine(
+                windowRectF.centerX(),
+                windowRectF.centerY(),
+                windowRectF.centerX(),
+                windowRectF.bottom,
+                debugPaint
+            )
         }
-        canvas.drawCircle(seatView.virtualRectF.left, seatView.virtualRectF.top, 20f, debugPaint)
-        canvas.drawCircle(
-            seatView.virtualRectF.right,
-            seatView.virtualRectF.bottom,
-            20f,
-            debugPaint
-        )
 
-        debugPaint.apply {
-            color = Color.BLACK
-            style = Paint.Style.FILL
-        }
-        canvas.drawLine(
-            seatView.windowRectF.centerX(),
-            seatView.windowRectF.centerY(),
-            seatView.windowRectF.centerX(),
-            seatView.windowRectF.bottom,
-            debugPaint
-        )
 
     }
 
