@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.murgupluoglu.seatviewsample.basic.BasicActivity
+import com.murgupluoglu.seatviewsample.battleship.BattleshipActivity
 import com.murgupluoglu.seatviewsample.cinemascreen.CinemaScreenActivity
 
 /*
@@ -16,6 +17,7 @@ class ListActivity : AppCompatActivity() {
 
     private lateinit var cinemaScreenSampleButton: Button
     private lateinit var basicSampleButton: Button
+    private lateinit var battleshipSampleButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +25,7 @@ class ListActivity : AppCompatActivity() {
 
         cinemaScreenSampleButton = findViewById(R.id.cinemaScreenSampleButton)
         basicSampleButton = findViewById(R.id.basicSampleButton)
+        battleshipSampleButton = findViewById(R.id.battleshipSampleButton)
 
         cinemaScreenSampleButton.setOnClickListener {
             startActivity(Intent(this, CinemaScreenActivity::class.java))
@@ -30,6 +33,10 @@ class ListActivity : AppCompatActivity() {
 
         basicSampleButton.setOnClickListener {
             startActivity(Intent(this, BasicActivity::class.java))
+        }
+
+        battleshipSampleButton.setOnClickListener {
+            startActivity(Intent(this, BattleshipActivity::class.java))
         }
 
     }

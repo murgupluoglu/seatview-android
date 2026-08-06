@@ -34,6 +34,8 @@ android {
 
 dependencies {
     //Test
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
     androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.truth)
     //

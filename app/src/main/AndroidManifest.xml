@@ -25,6 +25,7 @@
 
         <activity android:name=".basic.BasicActivity" />
         <activity android:name=".cinemascreen.CinemaScreenActivity" />
+        <activity android:name=".battleship.BattleshipActivity" />
     </application>
 
 </manifest>
