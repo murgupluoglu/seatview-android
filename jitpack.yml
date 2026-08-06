@@ -1,0 +1,5 @@
+# JitPack builds this repo when a tag is pushed. AGP 9.3.1 + Gradle 9.5 require JDK 17+,
+# while JitPack's default JDK is older — without this the release build fails.
+# Keep in sync with kotlin { jvmToolchain(17) } in the module build scripts.
+jdk:
+  - openjdk17

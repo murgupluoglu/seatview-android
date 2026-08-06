@@ -3,10 +3,14 @@ package com.murgupluoglu.seatviewsample
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth.assertThat
+import com.murgupluoglu.seatview.SeatPosition
 import com.murgupluoglu.seatview.SeatView
 import com.murgupluoglu.seatviewsample.cinemascreen.CinemaScreenActivity
 import com.murgupluoglu.seatviewsample.cinemascreen.MultipleSeat
-import org.junit.*
+import org.junit.Assume.assumeTrue
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 
 
@@ -22,26 +26,35 @@ class SeatViewTest {
     var rule: ActivityScenarioRule<CinemaScreenActivity> =
         ActivityScenarioRule(CinemaScreenActivity::class.java)
 
-
-    @Before
-    fun beforeTest() {
-
-    }
-
-    @After
-    fun afterTest() {
-    }
-
     @Test
     fun selectMultipleSeats() {
         rule.scenario.onActivity {
             val seatView = it.findViewById<SeatView<MultipleSeat>>(R.id.seatView)
 
-            Assert.assertEquals(0, seatView.selectedSeats.size)
+            assertThat(seatView.selectedSeatIds).isEmpty()
 
-            seatView.selectSeat(0, 0)
+            // Find a genuinely selectable seat that belongs to a multi-seat group; selecting it
+            // must atomically select every connected id. (selectSeat now honors canSelect(), so
+            // an unselectable seat can no longer be force-selected.)
+            var target: SeatPosition? = null
+            var expectedGroup: Set<String> = emptySet()
+            loop@ for (row in 0 until seatView.rowCount) {
+                for (column in 0 until seatView.columnCount) {
+                    val position = SeatPosition(row, column)
+                    val seat = seatView.seatAt(position) ?: continue
+                    if (seat.canSelect() && seat.allConnectedSeatIds().size >= 2) {
+                        target = position
+                        expectedGroup = (seat.allConnectedSeatIds().toList() + seat.id()).toSet()
+                        break@loop
+                    }
+                }
+            }
+            assumeTrue("no selectable multi-seat in sample data", target != null)
 
-            Assert.assertEquals(2, seatView.selectedSeats.size)
+            seatView.selectSeat(target!!)
+
+            assertThat(seatView.selectedSeatIds).isEqualTo(expectedGroup)
+            assertThat(seatView.selectedSeatIds.size).isAtLeast(2)
         }
     }
 
@@ -50,18 +63,13 @@ class SeatViewTest {
         rule.scenario.onActivity {
             val seatView = it.findViewById<SeatView<MultipleSeat>>(R.id.seatView)
 
-            Assert.assertEquals(0, seatView.selectedSeats.size)
+            assertThat(seatView.selectedSeatIds).isEmpty()
 
-            val disabledSeatPosition = seatView.getSeatPosition("A-3")
+            val disabledPersonSeat = seatView.selectSeat("A-3")
 
-            val disabledPersonSeat =
-                seatView.selectSeat(disabledSeatPosition!!.first, disabledSeatPosition.second)
-
-            Assert.assertNotNull(disabledPersonSeat)
-
-            Assert.assertEquals(10, disabledPersonSeat!!.type)
-
-            Assert.assertEquals(1, seatView.selectedSeats.size)
+            assertThat(disabledPersonSeat).isNotNull()
+            assertThat(disabledPersonSeat!!.type).isEqualTo(10)
+            assertThat(seatView.selectedSeatIds).hasSize(1)
         }
     }
 
@@ -70,11 +78,11 @@ class SeatViewTest {
         rule.scenario.onActivity {
             val seatView = it.findViewById<SeatView<MultipleSeat>>(R.id.seatView)
 
-            Assert.assertEquals(0, seatView.selectedSeats.size)
+            assertThat(seatView.selectedSeatIds).isEmpty()
 
-            seatView.selectSeat(13, 17)
+            seatView.selectSeat(SeatPosition(row = 17, column = 13))
 
-            Assert.assertEquals(0, seatView.selectedSeats.size)
+            assertThat(seatView.selectedSeatIds).isEmpty()
         }
     }
 
@@ -83,11 +91,11 @@ class SeatViewTest {
         rule.scenario.onActivity {
             val seatView = it.findViewById<SeatView<MultipleSeat>>(R.id.seatView)
 
-            Assert.assertEquals(true, seatView.config.isZoomActive)
+            assertThat(seatView.isZoomEnabled).isTrue()
 
-            seatView.config.isZoomActive = false
+            seatView.isZoomEnabled = false
 
-            Assert.assertEquals(false, seatView.config.isZoomActive)
+            assertThat(seatView.isZoomEnabled).isFalse()
         }
     }
 
@@ -96,11 +104,9 @@ class SeatViewTest {
         rule.scenario.onActivity {
             val seatView = it.findViewById<SeatView<MultipleSeat>>(R.id.seatView)
 
-            Assert.assertEquals(18, seatView.parameters.xSize)
-
-            Assert.assertEquals(14, seatView.parameters.ySize)
-
-            Assert.assertEquals(true, seatView.config.isZoomActive)
+            assertThat(seatView.columnCount).isEqualTo(18)
+            assertThat(seatView.rowCount).isEqualTo(14)
+            assertThat(seatView.isZoomEnabled).isTrue()
         }
     }
 }

@@ -1,9 +1,9 @@
 package com.murgupluoglu.seatviewsample
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import com.blankj.utilcode.util.ActivityUtils
 import com.murgupluoglu.seatviewsample.basic.BasicActivity
 import com.murgupluoglu.seatviewsample.cinemascreen.CinemaScreenActivity
 
@@ -25,11 +25,11 @@ class ListActivity : AppCompatActivity() {
         basicSampleButton = findViewById(R.id.basicSampleButton)
 
         cinemaScreenSampleButton.setOnClickListener {
-            ActivityUtils.startActivity(CinemaScreenActivity::class.java)
+            startActivity(Intent(this, CinemaScreenActivity::class.java))
         }
 
         basicSampleButton.setOnClickListener {
-            ActivityUtils.startActivity(BasicActivity::class.java)
+            startActivity(Intent(this, BasicActivity::class.java))
         }
 
     }

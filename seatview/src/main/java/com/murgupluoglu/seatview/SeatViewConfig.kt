@@ -1,6 +1,5 @@
 package com.murgupluoglu.seatview
 
-import android.content.res.Resources
 import android.graphics.Color
 import androidx.annotation.ColorInt
 
@@ -9,25 +8,26 @@ import androidx.annotation.ColorInt
 *  Copyright © 2020 Mustafa Ürgüplüoğlu. All rights reserved.
 */
 
+/**
+ * Immutable, consumer-tunable inputs for [SeatView].
+ *
+ * Seat sizes are expressed in **dp** and converted to pixels by the view against its own
+ * display density in [SeatView.initSeatView] — the config no longer reaches into the
+ * global `Resources.getSystem()` at construction time.
+ */
 data class SeatViewConfig(
-    var leftPadding: Float = 50f,
-    var rightPadding: Float = 50f,
-    var topPadding: Float = 50f,
-    var bottomPadding: Float = 50f,
+    val leftPadding: Float = 50f,
+    val rightPadding: Float = 50f,
+    val topPadding: Float = 50f,
+    val bottomPadding: Float = 50f,
 
-    var seatMinWidth: Float = 12f.dp2px(),
-    var seatMaxWidth: Float = 30f.dp2px(),
-    var seatDefaultWidth: Float = 13f.dp2px(),
-    var seatWidthHeightRatio: Float = 1f,
-    var seatInlineGapWidthRatio: Float = 0.265f,
-    var seatNewlineGapWidthRatio: Float = 0.304f,
+    val seatMinWidthDp: Float = 12f,
+    val seatMaxWidthDp: Float = 30f,
+    val seatDefaultWidthDp: Float = 13f,
+    val seatWidthHeightRatio: Float = 1f,
+    val seatInlineGapWidthRatio: Float = 0.265f,
+    val seatNewlineGapWidthRatio: Float = 0.304f,
 
-    @ColorInt
-    var backgroundColor: Int = Color.WHITE,
-    var isZoomActive: Boolean = true,
+    @param:ColorInt
+    val backgroundColor: Int = Color.WHITE,
 )
-
-fun Float.dp2px(): Float {
-    val scale: Float = Resources.getSystem().displayMetrics.density
-    return (this * scale + 0.5f)
-}

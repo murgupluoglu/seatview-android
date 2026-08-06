@@ -10,6 +10,7 @@ import com.murgupluoglu.seatview.extensions.DebugExtension
 import com.murgupluoglu.seatviewsample.R
 import org.json.JSONArray
 import org.json.JSONObject
+import timber.log.Timber
 
 /*
 *  Created by Mustafa Ürgüplüoğlu on 26.09.2020.
@@ -37,7 +38,8 @@ class CinemaScreenActivity : AppCompatActivity() {
         seatView.seatDrawer = CachedMultipleSeatDrawer()
 
         seatView.seatViewListener = object : SeatViewListener<MultipleSeat> {
-            override fun seatReleased(releasedSeat: MultipleSeat, selectedSeats: HashSet<String>) {
+            override fun seatReleased(releasedSeat: MultipleSeat, selectedSeats: Set<String>) {
+                Timber.d("released=%s selection=%s", releasedSeat.id(), selectedSeats)
                 Toast.makeText(
                     this@CinemaScreenActivity,
                     "Released->" + releasedSeat.id(),
@@ -45,7 +47,8 @@ class CinemaScreenActivity : AppCompatActivity() {
                 ).show()
             }
 
-            override fun seatSelected(selectedSeat: MultipleSeat, selectedSeats: HashSet<String>) {
+            override fun seatSelected(selectedSeat: MultipleSeat, selectedSeats: Set<String>) {
+                Timber.d("selected=%s selection=%s", selectedSeat.id(), selectedSeats)
                 Toast.makeText(
                     this@CinemaScreenActivity,
                     "Selected->" + selectedSeat.id(),
@@ -55,9 +58,18 @@ class CinemaScreenActivity : AppCompatActivity() {
 
             override fun canSelectSeat(
                 clickedSeat: MultipleSeat,
-                selectedSeats: HashSet<String>
+                selectedSeats: Set<String>
             ): Boolean {
                 return clickedSeat.canSelect()
+            }
+
+            /**
+             * Fired once after a rotation restores the selection — the place to rebuild derived
+             * state (seat count, price, order list). Deliberately not [seatSelected], which would
+             * fire once per seat of a connected multi-seat group and double-count it.
+             */
+            override fun selectionRestored(selectedSeats: Set<String>) {
+                Timber.d("selection restored: %s", selectedSeats)
             }
 
         }
