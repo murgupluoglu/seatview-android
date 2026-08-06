@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.murgupluoglu.seatview.SeatView
 import com.murgupluoglu.seatview.SeatViewListener
 import com.murgupluoglu.seatviewsample.R
+import timber.log.Timber
 
 class BasicActivity : AppCompatActivity() {
 
@@ -18,7 +19,8 @@ class BasicActivity : AppCompatActivity() {
         seatView = findViewById(R.id.seatView)
 
         seatView.seatViewListener = object : SeatViewListener<BasicSeat> {
-            override fun seatReleased(releasedSeat: BasicSeat, selectedSeats: HashSet<String>) {
+            override fun seatReleased(releasedSeat: BasicSeat, selectedSeats: Set<String>) {
+                Timber.d("released=%s selection=%s", releasedSeat.id(), selectedSeats)
                 Toast.makeText(
                     this@BasicActivity,
                     "Released->" + releasedSeat.id(),
@@ -26,7 +28,8 @@ class BasicActivity : AppCompatActivity() {
                 ).show()
             }
 
-            override fun seatSelected(selectedSeat: BasicSeat, selectedSeats: HashSet<String>) {
+            override fun seatSelected(selectedSeat: BasicSeat, selectedSeats: Set<String>) {
+                Timber.d("selected=%s selection=%s", selectedSeat.id(), selectedSeats)
                 Toast.makeText(
                     this@BasicActivity,
                     "Selected->" + selectedSeat.id(),
@@ -36,7 +39,7 @@ class BasicActivity : AppCompatActivity() {
 
             override fun canSelectSeat(
                 clickedSeat: BasicSeat,
-                selectedSeats: HashSet<String>
+                selectedSeats: Set<String>
             ): Boolean {
                 return clickedSeat.canSelect()
             }

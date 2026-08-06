@@ -17,4 +17,10 @@
         android:layout_height="wrap_content"
         android:text="Basic Sample" />
 
+    <Button
+        android:id="@+id/battleshipSampleButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Battleship Sample" />
+
 </LinearLayout>

@@ -21,7 +21,7 @@ class CenterLinesExtension(
     private var strokeWidthSize: Float = 3f,
     private var lineEffect: DashPathEffect? = DashPathEffect(floatArrayOf(5f, 5f, 5f, 5f), 1f),
     private var antiAlias: Boolean = true,
-    @ColorInt
+    @param:ColorInt
     private var lineColor: Int = Color.BLUE
 ) : SeatViewExtension() {
 

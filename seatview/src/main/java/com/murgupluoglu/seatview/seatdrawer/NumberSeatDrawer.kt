@@ -1,14 +1,8 @@
 package com.murgupluoglu.seatview.seatdrawer
 
-import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.graphics.RectF
-import com.murgupluoglu.seatview.Seat
-import com.murgupluoglu.seatview.SeatViewConfig
-import com.murgupluoglu.seatview.SeatViewParameters
 
 
 /*
@@ -28,47 +22,29 @@ class NumberSeatDrawer : SeatDrawer {
         color = Color.WHITE
     }
 
-    override fun <SEAT : Seat> draw(
-        context: Context,
-        params: SeatViewParameters,
-        config: SeatViewConfig,
-        canvas: Canvas,
-        seat: SEAT,
-        seatRectF: RectF,
-        isSelected: Boolean
-    ) {
+    private val textBounds = Rect()
+
+    override fun draw(scope: SeatDrawScope) {
+        val seat = scope.seat
         val color: Int = when {
-            isSelected -> {
-                Color.GREEN
-            }
-
-            !seat.canSelect() -> {
-                Color.RED
-            }
-
-            else -> {
-                Color.GRAY
-            }
+            scope.isSelected -> Color.GREEN
+            !seat.canSelect() -> Color.RED
+            else -> Color.GRAY
         }
         commonPaint.color = color
 
-        //Draw circle
-        //val calculatedSize = seatWidth * 0.5f
-        //canvas.drawCircle(seatRectF.centerX(), seatRectF.centerY(), calculatedSize, commonPaint)
-
         //Draw rectangle
         commonPaint.style = Paint.Style.FILL_AND_STROKE
-        canvas.drawRect(seatRectF, commonPaint)
+        scope.canvas.drawRect(scope.seatRect, commonPaint)
 
         //Draw text
-        val result = Rect()
-        textPaint.getTextBounds(seat.name(), 0, seat.name().length, result)
-        val yOffset = result.height() / 2
-        textPaint.textSize = params.seatWidth * 0.5f
-        canvas.drawText(
+        textPaint.getTextBounds(seat.name(), 0, seat.name().length, textBounds)
+        val yOffset = textBounds.height() / 2
+        textPaint.textSize = scope.parameters.seatWidth * 0.5f
+        scope.canvas.drawText(
             seat.name(),
-            seatRectF.centerX(),
-            seatRectF.centerY() + yOffset,
+            scope.seatRect.centerX(),
+            scope.seatRect.centerY() + yOffset,
             textPaint
         )
     }

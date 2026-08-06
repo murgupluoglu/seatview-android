@@ -4,12 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.RectF
 import androidx.core.content.ContextCompat
-import com.murgupluoglu.seatview.Seat
-import com.murgupluoglu.seatview.SeatViewConfig
-import com.murgupluoglu.seatview.SeatViewParameters
+import com.murgupluoglu.seatview.seatdrawer.SeatDrawScope
 import com.murgupluoglu.seatview.seatdrawer.SeatDrawer
+import androidx.core.graphics.createBitmap
 
 /*
 *  Created by Mustafa Ürgüplüoğlu on 25.09.2020.
@@ -23,33 +21,18 @@ class CachedMultipleSeatDrawer : SeatDrawer {
         isAntiAlias = true
     }
 
-    override fun <SEAT : Seat> draw(
-        context: Context,
-        params: SeatViewParameters,
-        config: SeatViewConfig,
-        canvas: Canvas,
-        seat: SEAT,
-        seatRectF: RectF,
-        isSelected: Boolean
-    ) {
-        seat as MultipleSeat
+    override fun draw(scope: SeatDrawScope) {
+        val seat = scope.seat as MultipleSeat
 
-        val drawableName = seat.getResourceName(isSelected)
-        val drawBitmap = if (bitmaps[drawableName] != null) {
-            bitmaps[drawableName]!!
-        } else {
-            val newBitmap =
-                getBitmap(
-                    context,
-                    drawableName,
-                    params.seatWidth.toInt(),
-                    params.seatHeight.toInt()
-                )
-            bitmaps[drawableName] = newBitmap
-            newBitmap
-        }
+        val drawableName = seat.getResourceName(scope.isSelected)
+        val drawBitmap = bitmaps[drawableName] ?: getBitmap(
+            scope.context,
+            drawableName,
+            scope.parameters.seatWidth.toInt(),
+            scope.parameters.seatHeight.toInt()
+        ).also { bitmaps[drawableName] = it }
 
-        canvas.drawBitmap(drawBitmap, null, seatRectF, commonPaint)
+        scope.canvas.drawBitmap(drawBitmap, null, scope.seatRect, commonPaint)
     }
 
     private fun getBitmap(
@@ -65,8 +48,8 @@ class CachedMultipleSeatDrawer : SeatDrawer {
                 context.packageName
             )
         val drawable = ContextCompat.getDrawable(context, resId)!!
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap!!)
+        val bitmap = createBitmap(width, height)
+        val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, width, height)
         drawable.draw(canvas)
         return bitmap

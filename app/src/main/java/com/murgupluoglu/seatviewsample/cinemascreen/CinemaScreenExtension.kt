@@ -17,11 +17,11 @@ import com.murgupluoglu.seatview.extensions.SeatViewExtension
 */
 
 class CinemaScreenExtension(
-    @ColorInt val screenBackgroundColor: Int = Color.RED,
+    @param:ColorInt val screenBackgroundColor: Int = Color.RED,
     private val screenPaintStyle: Paint.Style = Paint.Style.FILL,
     private val screenCornerPathEffect: CornerPathEffect = CornerPathEffect(12f),
     private val text: String = "Cinema Screen",
-    @ColorInt val textColor: Int = Color.WHITE,
+    @param:ColorInt val textColor: Int = Color.WHITE,
     private val cineTextAlign: Paint.Align = Paint.Align.CENTER
 ) : SeatViewExtension() {
 
